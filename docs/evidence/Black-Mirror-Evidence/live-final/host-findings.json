@@ -1,0 +1,36 @@
+{
+  "agent_session_mode": "simulated",
+  "real_capabilities": [
+    "fs:read"
+  ],
+  "apparent_capabilities": [
+    "fs:read",
+    "fs:write"
+  ],
+  "prisoned": true,
+  "raw_canary": "UNCHANGED\n",
+  "real_files": {
+    "control.txt": "REAL-CONTROL\n",
+    "notes.txt": "Task changed on real disk. Revision B.\n",
+    "unseen.txt": "Synthetic host-only value.\n"
+  },
+  "authorized_control_response": {
+    "ok": true
+  },
+  "reentry_after_prison": {
+    "ok": false,
+    "error": "mirror_prison: locked, permanent, no reentry"
+  },
+  "trace_checkpoint": {
+    "head": "19ed648bda54639aed2b5a4cedeaefe5ee9a1537c3d7067ab9a215c1ba527052",
+    "count": 73
+  },
+  "observation_checkpoint": {
+    "head": "2d5785e9994dcadfbae6463b25b6f3ea2e2b0f42d86d312fcccdc966ff3f383c",
+    "count": 24
+  },
+  "observations": 24,
+  "dropped": 0,
+  "observation_chain_verified": true,
+  "trace_verdict": "PARTIAL"
+}

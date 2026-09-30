@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/tmp/black-mirror-review-20260930/live_mirror_bridge.py", line 103, in <module>
+    response=perform(command)
+  File "/tmp/black-mirror-review-20260930/live_mirror_bridge.py", line 42, in perform
+    req['dual_token'] = GOV.issue_authorization(AGENT, 'fs:write')
+                        ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/tmp/black-mirror-review-20260930/source/mirror_world/sandbox/governor_process.py", line 591, in issue_authorization
+    return self._issue_authorization(agent_id, capability, ttl_seconds, approval)[0]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/black-mirror-review-20260930/source/mirror_world/sandbox/governor_process.py", line 601, in _issue_authorization
+    raise PermissionError("mirror_prison: locked, permanent, no new authorizations")
+PermissionError: mirror_prison: locked, permanent, no new authorizations

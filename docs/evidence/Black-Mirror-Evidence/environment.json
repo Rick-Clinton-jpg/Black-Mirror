@@ -1,0 +1,14 @@
+{
+  "timestamp_utc": "2026-09-30T13:54:27.073183+00:00",
+  "os_release": "PRETTY_NAME=\"Ubuntu 26.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"26.04\"\nVERSION=\"26.04.1 LTS (Resolute Raccoon)\"\nVERSION_CODENAME=resolute\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=resolute\nLOGO=ubuntu-logo\n",
+  "kernel": "7.0.0-31-generic",
+  "architecture": "aarch64",
+  "python": "3.14.4 (main, Aug 20 2026, 10:41:58) [GCC 15.2.0]",
+  "dependencies": {
+    "pytest": "9.1.1",
+    "cryptography": "46.0.5",
+    "pyseccomp": "0.1.2"
+  },
+  "zip_sha256": "87e3c83e9b724cdf250c4f282005e3000fa5851fbbf00ebb7783d42b5fef163d",
+  "changed_original_files": []
+}
