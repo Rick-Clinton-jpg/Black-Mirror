@@ -79,7 +79,10 @@ runs afterward. The nonce and ledger prevent pre-binding to an unknown challenge
 and multiple accepted closes; they do not prove chronological execution or
 single execution. Closing that gap requires an independent launcher controlling
 each execution, issuing a fresh registration per launch, and retaining every
-launch and its outcome. Independent host-effect observation addresses another
+launch and its outcome. For trial reporting, count a detected unregistered launch
+or a registration without an accepted close as failed/incomplete; do not drop it
+from the inventory. Unknown hidden launches remain undetectable by this verifier.
+Independent host-effect observation addresses another
 separate risk. No such remote launch service is supplied here.
 
 The recorder can also omit requests, misstate configuration, withhold closes,
