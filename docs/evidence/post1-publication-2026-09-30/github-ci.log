@@ -1,0 +1,323 @@
+﻿2026-09-30T14:22:18.8220773Z Current runner version: '2.337.0'
+2026-09-30T14:22:18.8242423Z ##[group]Runner Image Provisioner
+2026-09-30T14:22:18.8243318Z Hosted Compute Agent
+2026-09-30T14:22:18.8243874Z Version: 20260828.587
+2026-09-30T14:22:18.8244971Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-30T14:22:18.8245676Z Build Date: 2026-08-28T16:44:25Z
+2026-09-30T14:22:18.8246404Z Worker ID: {32ede4aa-4ddb-4208-9251-f98cbe6fdbac}
+2026-09-30T14:22:18.8247104Z Azure Region: centralus
+2026-09-30T14:22:18.8247668Z ##[endgroup]
+2026-09-30T14:22:18.8248992Z ##[group]Operating System
+2026-09-30T14:22:18.8249564Z Ubuntu
+2026-09-30T14:22:18.8250045Z 24.04.5
+2026-09-30T14:22:18.8250555Z LTS
+2026-09-30T14:22:18.8251027Z ##[endgroup]
+2026-09-30T14:22:18.8251540Z ##[group]Runner Image
+2026-09-30T14:22:18.8252169Z Image: ubuntu-24.04
+2026-09-30T14:22:18.8252699Z Version: 20260920.314.1
+2026-09-30T14:22:18.8253873Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260920.314/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-30T14:22:18.8255453Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260920.314
+2026-09-30T14:22:18.8256409Z ##[endgroup]
+2026-09-30T14:22:18.8257461Z ##[group]GITHUB_TOKEN Permissions
+2026-09-30T14:22:18.8259633Z Contents: read
+2026-09-30T14:22:18.8260175Z Metadata: read
+2026-09-30T14:22:18.8260741Z ##[endgroup]
+2026-09-30T14:22:18.8262636Z Secret source: Actions
+2026-09-30T14:22:18.8263866Z Cache mode: write
+2026-09-30T14:22:18.8264690Z Prepare workflow directory
+2026-09-30T14:22:18.8564597Z Prepare all required actions
+2026-09-30T14:22:18.8613714Z Getting action download info
+2026-09-30T14:22:19.1563274Z Download action repository 'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1' (SHA:3d3c42e5aac5ba805825da76410c181273ba90b1)
+2026-09-30T14:22:19.2657666Z Download action repository 'actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97' (SHA:5fda3b95a4ea91299a34e894583c3862153e4b97)
+2026-09-30T14:22:19.4667691Z Complete job name: linux-containment
+2026-09-30T14:22:19.5326370Z ##[group]Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+2026-09-30T14:22:19.5327464Z with:
+2026-09-30T14:22:19.5327986Z   persist-credentials: false
+2026-09-30T14:22:19.5328604Z   repository: Rick-Clinton-jpg/Black-Mirror
+2026-09-30T14:22:19.5332644Z   token: ***
+2026-09-30T14:22:19.5333172Z   ssh-strict: true
+2026-09-30T14:22:19.5333733Z   ssh-user: git
+2026-09-30T14:22:19.5334395Z   clean: true
+2026-09-30T14:22:19.5334927Z   sparse-checkout-cone-mode: true
+2026-09-30T14:22:19.5335555Z   fetch-depth: 1
+2026-09-30T14:22:19.5336085Z   fetch-tags: false
+2026-09-30T14:22:19.5336606Z   show-progress: true
+2026-09-30T14:22:19.5337141Z   lfs: false
+2026-09-30T14:22:19.5337637Z   submodules: false
+2026-09-30T14:22:19.5338171Z   set-safe-directory: true
+2026-09-30T14:22:19.5338775Z   allow-unsafe-pr-checkout: false
+2026-09-30T14:22:19.5339570Z ##[endgroup]
+2026-09-30T14:22:19.6270299Z Syncing repository: Rick-Clinton-jpg/Black-Mirror
+2026-09-30T14:22:19.6273759Z ##[group]Getting Git version info
+2026-09-30T14:22:19.6275306Z Working directory is '/home/runner/work/Black-Mirror/Black-Mirror'
+2026-09-30T14:22:19.6277026Z [command]/usr/bin/git version
+2026-09-30T14:22:19.6343957Z git version 2.55.0
+2026-09-30T14:22:19.6362798Z ##[endgroup]
+2026-09-30T14:22:19.6370621Z Temporarily overriding HOME='/home/runner/work/_temp/9b11457d-3192-4401-9b0d-8f4cec7e8f54' before making global git config changes
+2026-09-30T14:22:19.6373173Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-30T14:22:19.6375965Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Black-Mirror/Black-Mirror
+2026-09-30T14:22:19.6439297Z Deleting the contents of '/home/runner/work/Black-Mirror/Black-Mirror'
+2026-09-30T14:22:19.6443852Z ##[group]Determining repository object format
+2026-09-30T14:22:19.6455975Z ##[endgroup]
+2026-09-30T14:22:19.6457348Z ##[group]Initializing the repository
+2026-09-30T14:22:19.6458495Z [command]/usr/bin/git init /home/runner/work/Black-Mirror/Black-Mirror
+2026-09-30T14:22:19.6524680Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-30T14:22:19.6526990Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-30T14:22:19.6528351Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-30T14:22:19.6529653Z hint: call:
+2026-09-30T14:22:19.6530353Z hint:
+2026-09-30T14:22:19.6531179Z hint: 	git config --global init.defaultBranch <name>
+2026-09-30T14:22:19.6532208Z hint:
+2026-09-30T14:22:19.6533131Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-30T14:22:19.6534761Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-30T14:22:19.6536141Z hint:
+2026-09-30T14:22:19.6536870Z hint: 	git branch -m <name>
+2026-09-30T14:22:19.6537669Z hint:
+2026-09-30T14:22:19.6539154Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-30T14:22:19.6545820Z Initialized empty Git repository in /home/runner/work/Black-Mirror/Black-Mirror/.git/
+2026-09-30T14:22:19.6550205Z [command]/usr/bin/git remote add origin https://github.com/Rick-Clinton-jpg/Black-Mirror
+2026-09-30T14:22:19.6580528Z ##[endgroup]
+2026-09-30T14:22:19.6581891Z ##[group]Disabling automatic garbage collection
+2026-09-30T14:22:19.6584393Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-30T14:22:19.6613399Z ##[endgroup]
+2026-09-30T14:22:19.6615282Z ##[group]Setting up auth
+2026-09-30T14:22:19.6616370Z Removing SSH command configuration
+2026-09-30T14:22:19.6619016Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-30T14:22:19.6648893Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-30T14:22:19.6953346Z Removing HTTP extra header
+2026-09-30T14:22:19.6959829Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-30T14:22:19.6987311Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-30T14:22:19.7181438Z Removing includeIf entries pointing to credentials config files
+2026-09-30T14:22:19.7187232Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-30T14:22:19.7215540Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-30T14:22:19.7432162Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-30T14:22:19.7461690Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git.path /home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:19.7487806Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:19.7518861Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:19.7546594Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:19.7570046Z ##[endgroup]
+2026-09-30T14:22:19.7570864Z ##[group]Fetching the repository
+2026-09-30T14:22:19.7575728Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +5fefb7400a8ba2d3b55bb9f995f6f87275a571ea:refs/remotes/origin/main
+2026-09-30T14:22:20.3164418Z From https://github.com/Rick-Clinton-jpg/Black-Mirror
+2026-09-30T14:22:20.3165838Z  * [new ref]         5fefb7400a8ba2d3b55bb9f995f6f87275a571ea -> origin/main
+2026-09-30T14:22:20.3172829Z [command]/usr/bin/git branch --list --remote origin/main
+2026-09-30T14:22:20.3197176Z   origin/main
+2026-09-30T14:22:20.3202579Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+2026-09-30T14:22:20.3224350Z 5fefb7400a8ba2d3b55bb9f995f6f87275a571ea
+2026-09-30T14:22:20.3226884Z ##[endgroup]
+2026-09-30T14:22:20.3228082Z ##[group]Determining the checkout info
+2026-09-30T14:22:20.3229500Z ##[endgroup]
+2026-09-30T14:22:20.3232592Z [command]/usr/bin/git sparse-checkout disable
+2026-09-30T14:22:20.3278675Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-30T14:22:20.3306311Z ##[group]Checking out the ref
+2026-09-30T14:22:20.3309330Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-09-30T14:22:20.3452354Z Switched to a new branch 'main'
+2026-09-30T14:22:20.3456096Z branch 'main' set up to track 'origin/main'.
+2026-09-30T14:22:20.3462956Z ##[endgroup]
+2026-09-30T14:22:20.3500815Z [command]/usr/bin/git log -1 --format=%H
+2026-09-30T14:22:20.3523605Z 5fefb7400a8ba2d3b55bb9f995f6f87275a571ea
+2026-09-30T14:22:20.3531443Z ##[group]Removing auth
+2026-09-30T14:22:20.3532878Z Removing SSH command configuration
+2026-09-30T14:22:20.3535575Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-30T14:22:20.3566989Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-30T14:22:20.3778141Z Removing HTTP extra header
+2026-09-30T14:22:20.3781960Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-30T14:22:20.3808820Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-30T14:22:20.3982893Z Removing includeIf entries pointing to credentials config files
+2026-09-30T14:22:20.3986684Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-30T14:22:20.4009469Z includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git.path
+2026-09-30T14:22:20.4012476Z includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git/worktrees/*.path
+2026-09-30T14:22:20.4015415Z includeif.gitdir:/github/workspace/.git.path
+2026-09-30T14:22:20.4017464Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-30T14:22:20.4023748Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git.path
+2026-09-30T14:22:20.4038699Z /home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:20.4050023Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git.path \/home\/runner\/work\/_temp\/git\-credentials\-28676050\-826e\-45d8\-a12f\-c16f74591222\.config
+2026-09-30T14:22:20.4079738Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git/worktrees/*.path
+2026-09-30T14:22:20.4105246Z /home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:20.4114846Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/Black-Mirror/Black-Mirror/.git/worktrees/*.path \/home\/runner\/work\/_temp\/git\-credentials\-28676050\-826e\-45d8\-a12f\-c16f74591222\.config
+2026-09-30T14:22:20.4142552Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-09-30T14:22:20.4163932Z /github/runner_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:20.4191770Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path \/github\/runner_temp\/git\-credentials\-28676050\-826e\-45d8\-a12f\-c16f74591222\.config
+2026-09-30T14:22:20.4245367Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-30T14:22:20.4265291Z /github/runner_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config
+2026-09-30T14:22:20.4272149Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path \/github\/runner_temp\/git\-credentials\-28676050\-826e\-45d8\-a12f\-c16f74591222\.config
+2026-09-30T14:22:20.4299478Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-30T14:22:20.4471237Z Removing credentials config '/home/runner/work/_temp/git-credentials-28676050-826e-45d8-a12f-c16f74591222.config'
+2026-09-30T14:22:20.4567154Z ##[endgroup]
+2026-09-30T14:22:20.4890243Z ##[group]Run actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+2026-09-30T14:22:20.4891866Z with:
+2026-09-30T14:22:20.4892706Z   python-version: 3.12
+2026-09-30T14:22:20.4893734Z   check-latest: false
+2026-09-30T14:22:20.4903059Z   token: ***
+2026-09-30T14:22:20.4903979Z   update-environment: true
+2026-09-30T14:22:20.4905128Z   allow-prereleases: false
+2026-09-30T14:22:20.4906159Z   freethreaded: false
+2026-09-30T14:22:20.4907101Z ##[endgroup]
+2026-09-30T14:22:20.6050931Z ##[group]Installed versions
+2026-09-30T14:22:20.6126599Z Successfully set up CPython (3.12.14)
+2026-09-30T14:22:20.6129983Z ##[endgroup]
+2026-09-30T14:22:20.6305522Z ##[group]Run sudo apt-get update
+2026-09-30T14:22:20.6307415Z [36;1msudo apt-get update[0m
+2026-09-30T14:22:20.6309234Z [36;1msudo apt-get install -y libseccomp2 util-linux[0m
+2026-09-30T14:22:20.6311258Z [36;1mpython -m venv .venv[0m
+2026-09-30T14:22:20.6313103Z [36;1m.venv/bin/python -m pip install -e . pytest==8.4.2[0m
+2026-09-30T14:22:20.6315984Z [36;1m# The bootstrap and test agents execute after dropping to uid 65534.[0m
+2026-09-30T14:22:20.6318213Z [36;1m# Preserve owner-only writes while making public source readable.[0m
+2026-09-30T14:22:20.6319829Z [36;1mchmod o+x /home/runner[0m
+2026-09-30T14:22:20.6321069Z [36;1mchmod -R a+rX mirror_world examples[0m
+2026-09-30T14:22:20.6322578Z [36;1mnamei -l "$PWD/mirror_world/sandbox/kernel_lockdown.py"[0m
+2026-09-30T14:22:20.6550300Z shell: /usr/bin/bash -e {0}
+2026-09-30T14:22:20.6551389Z env:
+2026-09-30T14:22:20.6552495Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:20.6554671Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-30T14:22:20.6556466Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:20.6558109Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:20.6559771Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:20.6561440Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-30T14:22:20.6562850Z ##[endgroup]
+2026-09-30T14:22:20.7256854Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+2026-09-30T14:22:20.7902233Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+2026-09-30T14:22:20.8584553Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [503 kB]
+2026-09-30T14:22:20.8746485Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [454 kB]
+2026-09-30T14:22:21.4330848Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+2026-09-30T14:22:21.4452485Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+2026-09-30T14:22:21.4481645Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+2026-09-30T14:22:21.4499797Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+2026-09-30T14:22:21.5181292Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1322 kB]
+2026-09-30T14:22:21.5250312Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [299 kB]
+2026-09-30T14:22:21.5271387Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Components [181 kB]
+2026-09-30T14:22:21.5305645Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1699 kB]
+2026-09-30T14:22:21.5365612Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [341 kB]
+2026-09-30T14:22:21.5390238Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Components [388 kB]
+2026-09-30T14:22:21.5423064Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1662 kB]
+2026-09-30T14:22:21.5500965Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [379 kB]
+2026-09-30T14:22:21.5553467Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Components [940 B]
+2026-09-30T14:22:21.5651628Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [40.6 kB]
+2026-09-30T14:22:21.6142261Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-backports/main amd64 Components [5760 B]
+2026-09-30T14:22:21.6151272Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [31.0 kB]
+2026-09-30T14:22:21.6164168Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe Translation-en [18.6 kB]
+2026-09-30T14:22:21.6174357Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-backports/universe amd64 Components [12.6 kB]
+2026-09-30T14:22:21.6183943Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1066 kB]
+2026-09-30T14:22:21.6231053Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [220 kB]
+2026-09-30T14:22:21.6247653Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Components [46.4 kB]
+2026-09-30T14:22:21.6258360Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1216 kB]
+2026-09-30T14:22:21.6315691Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [244 kB]
+2026-09-30T14:22:21.6333971Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Components [76.3 kB]
+2026-09-30T14:22:21.6345350Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1566 kB]
+2026-09-30T14:22:21.6459883Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [361 kB]
+2026-09-30T14:22:29.6149952Z Fetched 12.5 MB in 2s (6245 kB/s)
+2026-09-30T14:22:30.4155316Z Reading package lists...
+2026-09-30T14:22:30.4428031Z Reading package lists...
+2026-09-30T14:22:30.5816846Z Building dependency tree...
+2026-09-30T14:22:30.5821221Z Reading state information...
+2026-09-30T14:22:30.7628829Z libseccomp2 is already the newest version (2.5.5-1ubuntu3.1).
+2026-09-30T14:22:30.7629888Z libseccomp2 set to manually installed.
+2026-09-30T14:22:30.7630607Z util-linux is already the newest version (2.39.3-9ubuntu6.6).
+2026-09-30T14:22:30.7631336Z 0 upgraded, 0 newly installed, 0 to remove and 46 not upgraded.
+2026-09-30T14:22:33.6649533Z Obtaining file:///home/runner/work/Black-Mirror/Black-Mirror
+2026-09-30T14:22:33.6665338Z   Installing build dependencies: started
+2026-09-30T14:22:34.7853558Z   Installing build dependencies: finished with status 'done'
+2026-09-30T14:22:34.7860161Z   Checking if build backend supports build_editable: started
+2026-09-30T14:22:35.2108674Z   Checking if build backend supports build_editable: finished with status 'done'
+2026-09-30T14:22:35.2116179Z   Getting requirements to build editable: started
+2026-09-30T14:22:35.3956482Z   Getting requirements to build editable: finished with status 'done'
+2026-09-30T14:22:35.3963589Z   Preparing editable metadata (pyproject.toml): started
+2026-09-30T14:22:35.5694868Z   Preparing editable metadata (pyproject.toml): finished with status 'done'
+2026-09-30T14:22:35.6711388Z Collecting pytest==8.4.2
+2026-09-30T14:22:35.7218864Z   Downloading pytest-8.4.2-py3-none-any.whl.metadata (7.7 kB)
+2026-09-30T14:22:35.7419060Z Collecting iniconfig>=1 (from pytest==8.4.2)
+2026-09-30T14:22:35.7521302Z   Downloading iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+2026-09-30T14:22:35.7742592Z Collecting packaging>=20 (from pytest==8.4.2)
+2026-09-30T14:22:35.7846263Z   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+2026-09-30T14:22:35.8036063Z Collecting pluggy<2,>=1.5 (from pytest==8.4.2)
+2026-09-30T14:22:35.8137487Z   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+2026-09-30T14:22:35.8386641Z Collecting pygments>=2.7.2 (from pytest==8.4.2)
+2026-09-30T14:22:35.8628551Z   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+2026-09-30T14:22:35.8801776Z Collecting pyseccomp (from black-mirror==1.1.2.post1)
+2026-09-30T14:22:35.8920050Z   Downloading pyseccomp-0.1.2-py3-none-any.whl.metadata (1.4 kB)
+2026-09-30T14:22:36.3064942Z Collecting cryptography>=42 (from black-mirror==1.1.2.post1)
+2026-09-30T14:22:36.3167951Z   Downloading cryptography-50.0.1-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.3 kB)
+2026-09-30T14:22:36.3969842Z Collecting cffi>=2.0.0 (from cryptography>=42->black-mirror==1.1.2.post1)
+2026-09-30T14:22:36.4070920Z   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+2026-09-30T14:22:36.4469147Z Collecting pycparser (from cffi>=2.0.0->cryptography>=42->black-mirror==1.1.2.post1)
+2026-09-30T14:22:36.4573037Z   Downloading pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+2026-09-30T14:22:36.4717040Z Downloading pytest-8.4.2-py3-none-any.whl (365 kB)
+2026-09-30T14:22:36.5213241Z Downloading cryptography-50.0.1-cp311-abi3-manylinux_2_34_x86_64.whl (4.7 MB)
+2026-09-30T14:22:36.6125032Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 56.8 MB/s eta 0:00:00
+2026-09-30T14:22:36.6229719Z Downloading iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+2026-09-30T14:22:36.6357278Z Downloading packaging-26.3-py3-none-any.whl (129 kB)
+2026-09-30T14:22:36.6631579Z Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+2026-09-30T14:22:36.6762885Z Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+2026-09-30T14:22:36.6878598Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 112.0 MB/s eta 0:00:00
+2026-09-30T14:22:36.6992840Z Downloading pyseccomp-0.1.2-py3-none-any.whl (5.7 kB)
+2026-09-30T14:22:36.7117239Z Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+2026-09-30T14:22:36.7241629Z Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+2026-09-30T14:22:36.7423958Z Building wheels for collected packages: black-mirror
+2026-09-30T14:22:36.7431105Z   Building editable for black-mirror (pyproject.toml): started
+2026-09-30T14:22:36.9390620Z   Building editable for black-mirror (pyproject.toml): finished with status 'done'
+2026-09-30T14:22:36.9396204Z   Created wheel for black-mirror: filename=black_mirror-1.1.2.post1-0.editable-py3-none-any.whl size=4917 sha256=9c0e1bf85e3585cfeffd9fcc362ca0340455639a1a08b801a09e2ce2e92730e8
+2026-09-30T14:22:36.9397902Z   Stored in directory: /tmp/pip-ephem-wheel-cache-1st3lf51/wheels/a6/87/07/239340b9987081958e3cf19aab7d103c3ee59dfb48c4875670
+2026-09-30T14:22:36.9412984Z Successfully built black-mirror
+2026-09-30T14:22:36.9547941Z Installing collected packages: pyseccomp, pygments, pycparser, pluggy, packaging, iniconfig, pytest, cffi, cryptography, black-mirror
+2026-09-30T14:22:38.1110313Z Successfully installed black-mirror-1.1.2.post1 cffi-2.1.1 cryptography-50.0.1 iniconfig-2.3.0 packaging-26.3 pluggy-1.6.0 pycparser-3.0 pygments-2.21.0 pyseccomp-0.1.2 pytest-8.4.2
+2026-09-30T14:22:38.2505816Z 
+2026-09-30T14:22:38.2506654Z [notice] A new release of pip is available: 25.0.1 -> 26.2.1
+2026-09-30T14:22:38.2507276Z [notice] To update, run: python -m pip install --upgrade pip
+2026-09-30T14:22:38.3297764Z f: /home/runner/work/Black-Mirror/Black-Mirror/mirror_world/sandbox/kernel_lockdown.py
+2026-09-30T14:22:38.3298717Z drwxr-xr-x root   root   /
+2026-09-30T14:22:38.3299563Z drwxr-xr-x root   root   home
+2026-09-30T14:22:38.3300082Z drwxr-x--x runner runner runner
+2026-09-30T14:22:38.3300750Z drwxr-xr-x runner runner work
+2026-09-30T14:22:38.3301185Z drwxr-xr-x runner runner Black-Mirror
+2026-09-30T14:22:38.3301553Z drwxr-xr-x runner runner Black-Mirror
+2026-09-30T14:22:38.3301922Z drwxr-xr-x runner runner mirror_world
+2026-09-30T14:22:38.3302315Z drwxr-xr-x runner runner sandbox
+2026-09-30T14:22:38.3302691Z -rw-r--r-- runner runner kernel_lockdown.py
+2026-09-30T14:22:38.3347720Z ##[group]Run sudo env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin \
+2026-09-30T14:22:38.3348265Z [36;1msudo env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin \[0m
+2026-09-30T14:22:38.3348730Z [36;1m  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \[0m
+2026-09-30T14:22:38.3349186Z [36;1m  "$PWD/.venv/bin/python" scripts/check_kernel.py[0m
+2026-09-30T14:22:38.3349656Z [36;1msudo env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin \[0m
+2026-09-30T14:22:38.3350070Z [36;1m  PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 \[0m
+2026-09-30T14:22:38.3350487Z [36;1m  "$PWD/.venv/bin/python" -m pytest -q -ra[0m
+2026-09-30T14:22:38.3393659Z shell: /usr/bin/bash -e {0}
+2026-09-30T14:22:38.3394315Z env:
+2026-09-30T14:22:38.3394705Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:38.3395258Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib/pkgconfig
+2026-09-30T14:22:38.3395759Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:38.3396342Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:38.3396772Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.14/x64
+2026-09-30T14:22:38.3397248Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.14/x64/lib
+2026-09-30T14:22:38.3397660Z ##[endgroup]
+2026-09-30T14:22:38.7029174Z Containment probe exit: 0
+2026-09-30T14:22:38.7029729Z mirror-kernel-ready
+2026-09-30T14:22:38.7029938Z 
+2026-09-30T14:22:38.7029944Z 
+2026-09-30T14:22:40.5897359Z ........................................................................ [ 15%]
+2026-09-30T14:22:45.6776163Z ........................................................................ [ 30%]
+2026-09-30T14:22:45.9104679Z ........................................................................ [ 45%]
+2026-09-30T14:22:52.2706087Z ........................................................................ [ 61%]
+2026-09-30T14:22:59.0655392Z ........................................................................ [ 76%]
+2026-09-30T14:22:59.3974978Z .ss..................................................................... [ 91%]
+2026-09-30T14:22:59.4841422Z .......................................                                  [100%]
+2026-09-30T14:22:59.4843509Z =========================== short test summary info ============================
+2026-09-30T14:22:59.4844644Z SKIPPED [1] tests/test_shield_tripwire.py:121: mirror_shield not installed; core has no hard dependency on it
+2026-09-30T14:22:59.4845799Z SKIPPED [1] tests/test_shield_tripwire.py:147: mirror_shield not installed; core has no hard dependency on it
+2026-09-30T14:22:59.4846613Z 469 passed, 2 skipped in 20.31s
+2026-09-30T14:22:59.5507544Z Post job cleanup.
+2026-09-30T14:22:59.6772204Z Post job cleanup.
+2026-09-30T14:22:59.7577879Z [command]/usr/bin/git version
+2026-09-30T14:22:59.7615136Z git version 2.55.0
+2026-09-30T14:22:59.7653142Z Temporarily overriding HOME='/home/runner/work/_temp/61b2636e-d47f-4298-9e9d-30f8cd6c0e65' before making global git config changes
+2026-09-30T14:22:59.7654733Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-30T14:22:59.7658598Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Black-Mirror/Black-Mirror
+2026-09-30T14:22:59.7688922Z Removing SSH command configuration
+2026-09-30T14:22:59.7694350Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-30T14:22:59.7727152Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-30T14:22:59.7940552Z Removing HTTP extra header
+2026-09-30T14:22:59.7942228Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-30T14:22:59.7962234Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-30T14:22:59.8161496Z Removing includeIf entries pointing to credentials config files
+2026-09-30T14:22:59.8168242Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-30T14:22:59.8202648Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-30T14:22:59.8597974Z Cleaning up orphan processes

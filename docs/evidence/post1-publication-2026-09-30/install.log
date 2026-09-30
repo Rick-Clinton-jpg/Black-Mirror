@@ -1,0 +1,13 @@
+Obtaining file:///tmp/black-mirror-post1-review-20260930/source
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: black-mirror
+  Building editable for black-mirror (pyproject.toml): started
+  Building editable for black-mirror (pyproject.toml): finished with status 'done'
+  Created wheel for black-mirror: filename=black_mirror-1.1.2.post1-0.editable-py3-none-any.whl size=4928 sha256=6a9d9912f261d816959a501c423d0ae497e56c90a87e98f6711fcc4b64b76078
+  Stored in directory: /tmp/pip-ephem-wheel-cache-9a5e9_y5/wheels/b2/33/fe/2cccfdb0a5597977016c415c58c6046dda04285276cd159153
+Successfully built black-mirror
+Installing collected packages: black-mirror
+Successfully installed black-mirror-1.1.2.post1

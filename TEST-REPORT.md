@@ -1,11 +1,14 @@
 # Black Mirror 1.1.2.post1 — Validation Status
 
-(1.1.2.post1 changes documentation only; the code is identical to 1.1.2, which is what every result below tested.)
+(1.1.2.post1 changes documentation and package metadata only; its code, tests, examples and workflow are identical to 1.1.2. The publication checks below tested 1.1.2.post1; earlier results tested 1.1.2.)
 
-**Status: 1.1.2 passed the Linux CI job (temporary repository) and an independent
-run on a second Linux machine, and had a first live-model session (2026-09-30).**
-There is no CI record for 1.0 / 1.1.0, or yet on the project's own repository:
-the included workflow starts on the first push there.
+**Status: 1.1.2.post1 passed the Linux CI job in this project's own repository and an independent UTM Linux rerun (2026-09-30).** The earlier 1.1.2 release also passed Linux validation and had a first live-model containment session.
+
+The [first project CI run](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) tested commit `5fefb7400a8ba2d3b55bb9f995f6f87275a571ea`: install succeeded, the kernel probe returned `mirror-kernel-ready`, and the full suite finished with **469 passed, 2 skipped in 20.31s**. Both skips are the optional `mirror_shield` tests. The timing tests passed.
+
+The publication candidate was also installed and tested in the existing UTM VM: kernel probe passed and **469 passed, 2 skipped in 8.13s**. It reused system-site packages, so it was not an isolated dependency installation. [Publication validation logs](docs/evidence/post1-publication-2026-09-30/README.md) preserve both results. No new live-model session was run for post1.
+
+There is no CI record for 1.0 / 1.1.0. The documentation update linking this run follows the tested commit.
 
 ## Second Linux run and first live-model session
 
@@ -63,11 +66,7 @@ stock `ubuntu-24.04` GitHub runner against the exact 1.1.2 tree:
 | 1.1.1 | passed (the test step requires it) | 465 passed, 2 skipped |
 | 1.1.2 | passed (the test step requires it) | 469 passed, 2 skipped |
 
-Both skips are the optional `mirror_shield` package. Both runs were in a
-throwaway repository that will be deleted, so no permanent record remains:
-push this tree to the project's own repository and let the job run there
-before citing it. This report was updated after the 1.1.2 run, so the run
-itself is not part of the tested tree.
+Both skips are the optional `mirror_shield` package. These earlier runs were in a temporary repository. The 1.1.2 run is [recorded here](https://github.com/Rick-Clinton-jpg/scratch-test/actions/runs/36678398319); that repository may be deleted. The [post1 project CI run](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) now provides a record in Black-Mirror itself. This report was updated after each cited run, so the updates are not part of those tested commits.
 
 ## Local results for 1.1.2 (not CI)
 
@@ -120,4 +119,4 @@ namespaces/seccomp before citing kernel containment.
 
 - Behavior-based prison beyond keywords: future work (see ROADMAP.md).
 - World texture (1.2): not started; only neutral wishlist stubs.
-- CI: passed once in a temporary repository; re-run in the project's own repository for a lasting record.
+- CI: [1.1.2.post1 passed in the project's own repository](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698); logs are preserved under `docs/evidence/post1-publication-2026-09-30/`.

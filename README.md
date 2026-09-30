@@ -1,4 +1,6 @@
-# Black Mirror v1.1.2
+# Black Mirror v1.1.2.post1
+
+[![Security regression tests](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml/badge.svg)](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml)
 
 Black Mirror is a **full observation chamber for untrusted AI agents**.
 
@@ -182,12 +184,7 @@ kernel hardening enabled before being added here.
 - Agent source must not run without kernel hardening unless trusted test or
   demo code explicitly opts into `allow_unhardened_agent_execution=True`.
 
-The Linux CI job has passed for 0.9.10 on stock ubuntu-24.04 runners, but in a
-temporary repository; re-run it in the project's own repository for a lasting
-record. A test run on
-macOS or a host without working namespaces/seccomp does not validate kernel
-containment. See `TEST-REPORT.md` for the status of this exact release, and
-[ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
+The [Linux CI job for 1.1.2.post1](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) passed in this repository on a stock ubuntu-24.04 runner: kernel probe passed, **469 tests passed, 2 skipped**. The independent UTM Linux run also passed. A test run on macOS or a host without working namespaces/seccomp does not validate kernel containment. See [TEST-REPORT.md](TEST-REPORT.md) for validation details, [Black Mirror Evidence](docs/evidence/Black-Mirror-Evidence/FINDINGS.md) for the live-model session and its PARTIAL verdict, and [ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
 
 ## Architecture at a glance
 
