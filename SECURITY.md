@@ -100,7 +100,15 @@ running governor's in-memory checkpoint. Legacy unchained traces are still
 read and reported as UNCHAINED unless `require_chain=True`. The chain proves
 the file was not changed after it was written, not that the recorder was
 honest: protect the recorder; external durable logging remains a deployment
-responsibility. Before 0.9.9 the parser also rejected three event types the
+responsibility. Optional observer-registered start/close anchoring is documented in
+`docs/ANCHORING.md`. It requires independent retention before execution and
+binds the registered run into the first trace event. A missing close remains
+incomplete; an unanchored tail is not certified by a retained prefix. Observer
+nonces and single-acceptance receipts do not prevent hidden retries or selective
+registration by a dishonest recorder; independent launch control is required. The
+launcher supplies the observer acknowledgment; digest equality alone cannot
+prove remote retention or recorder truthfulness.
+Before 0.9.9 the parser also rejected three event types the
 governor emits (`reentry_denied`, `model_governor_error`, `world_transition`),
 so a trace containing a refused re-entry could not be analyzed at all.
 Reports explicitly distinguish checks that were not evaluated. The headline

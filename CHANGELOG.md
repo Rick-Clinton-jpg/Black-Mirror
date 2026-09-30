@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0 (unreleased)
+
+- Add optional observer-registered start/close trace anchoring, with a random
+  nonce in the first event and an observer ledger accepting each registration once.
+- Separate integrity, declared completion and start-only coverage in verification.
+- Anchored traces use the v2 anchor schema and require a 1.2.0 parser. Existing
+  unanchored traces retain their format. This changes no containment authority.
+- Nonces prevent pre-registration binding, not hidden retries or recorder lies;
+  independent launch control is still needed to measure selective reporting.
+
 ## 1.1.2.post1
 
 Documentation only; the code is identical to 1.1.2.

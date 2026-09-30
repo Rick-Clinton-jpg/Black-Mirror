@@ -1,4 +1,4 @@
-# Black Mirror v1.1.2.post1
+# Black Mirror v1.2.0 (release candidate)
 
 [![Security regression tests](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml/badge.svg)](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml)
 
@@ -353,6 +353,12 @@ filesystem access are unavailable after lockdown. Agents communicate through
 restricted computation/protocol runtime, not a general-purpose Python container.
 
 ## Independent evidence checks
+
+Optional [observer-registered checkpoint anchoring](docs/ANCHORING.md) binds the
+first event to a nonce issued by an independent observer. Its ledger accepts one
+closing submission per registration; verification reports integrity, declared
+completion and start-only coverage separately. It cannot detect hidden retries
+or establish recorder truth. Use `python -m mirror_world.anchor --help`.
 
 | Article | Module | Evidence checked |
 |---|---|---|
