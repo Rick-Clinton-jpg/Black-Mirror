@@ -360,6 +360,12 @@ closing submission per registration; verification reports integrity, declared
 completion and start-only coverage separately. It cannot detect hidden retries
 or establish recorder truth. Use `python -m mirror_world.anchor --help`.
 
+Experimental [Pattern Net](docs/PATTERN-NET.md) records observer-controlled
+launches, including aborted and unfinished runs, and makes advisory next-action
+forecasts from independently accepted runs. Its frozen-snapshot read planner
+prepares candidate replies without changing enforcement or reading the live
+host. One informed live trial is not enough to validate its predictions.
+
 | Article | Module | Evidence checked |
 |---|---|---|
 | I — Authority Monotonicity | `invariants.authority` | capability gains without recorded authorization |
