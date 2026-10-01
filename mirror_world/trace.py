@@ -98,6 +98,7 @@ from mirror_world.invariants.evaluator_trust import EvidenceRecord
 from mirror_world.state import Capability, ContainmentGraph, State, Transition
 
 _EVENT_FIELDS = {
+    "run_start": ({"run_id", "source_sha256", "config_sha256", "start_sha256", "observer_nonce", "registration_sha256"}, set()),
     "init": ({"state_id"}, set()),
     "state": ({"id"}, {"capabilities", "knowledge", "is_mirror", "backing_state_id", "apparent_success"}),
     "transition": ({"src", "dst"}, {"seq", "action", "agent_id", "authorized_grant", "disclosed_grant"}),
@@ -244,6 +245,10 @@ def _validate_event(event: object) -> str:
             raise TraceParseError("agent_id must be non-empty")
     if etype == "resource_access" and event["op"] not in {"read", "write"}:
         raise TraceParseError("resource_access op must be read or write")
+    if etype == "run_start":
+        from mirror_world.anchor import validate_binding
+
+        validate_binding(event)
     return etype
 
 
@@ -349,6 +354,9 @@ def parse_trace(
                 raise TraceParseError(f"line {lineno}: hash chain broken: {exc}") from exc
         elif has_chain:
             raise TraceParseError(f"line {lineno}: chained event in an unchained trace")
+
+        if etype == "run_start" and (events_seen != 1 or chain is None):
+            raise TraceParseError(f"line {lineno}: run_start must be the first chained event")
 
         if etype == "init":
             if initial_state_id is not None:

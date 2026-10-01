@@ -1,4 +1,4 @@
-# Black Mirror v1.1.2.post1
+# Black Mirror v1.2.0 (release candidate)
 
 [![Security regression tests](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml/badge.svg)](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml)
 
@@ -184,7 +184,7 @@ kernel hardening enabled before being added here.
 - Agent source must not run without kernel hardening unless trusted test or
   demo code explicitly opts into `allow_unhardened_agent_execution=True`.
 
-The [Linux CI job for 1.1.2.post1](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) passed in this repository on a stock ubuntu-24.04 runner: kernel probe passed, **469 tests passed, 2 skipped**. The independent UTM Linux run also passed. A test run on macOS or a host without working namespaces/seccomp does not validate kernel containment. See [TEST-REPORT.md](TEST-REPORT.md) for validation details, [Black Mirror Evidence](docs/evidence/Black-Mirror-Evidence/FINDINGS.md) for the live-model session and its PARTIAL verdict, and [ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
+The [Linux CI job for 1.1.2.post1](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) passed in this repository on a stock ubuntu-24.04 runner: kernel probe passed, **469 tests passed, 2 skipped**. The independent UTM Linux run also passed. A test run on macOS or a host without working namespaces/seccomp does not validate kernel containment. See [TEST-REPORT.md](TEST-REPORT.md) for validation details, [Black Mirror Evidence](docs/evidence/Black-Mirror-Evidence/FINDINGS.md) for the first live-model session, the [1.2.0 informed breakout trial](docs/evidence/live-aggressive-2026-10-01/README.md) for its PARTIAL verdict and retained evidence, and [ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
 
 ## Architecture at a glance
 
@@ -353,6 +353,12 @@ filesystem access are unavailable after lockdown. Agents communicate through
 restricted computation/protocol runtime, not a general-purpose Python container.
 
 ## Independent evidence checks
+
+Optional [observer-registered checkpoint anchoring](docs/ANCHORING.md) binds the
+first event to a nonce issued by an independent observer. Its ledger accepts one
+closing submission per registration; verification reports integrity, declared
+completion and start-only coverage separately. It cannot detect hidden retries
+or establish recorder truth. Use `python -m mirror_world.anchor --help`.
 
 | Article | Module | Evidence checked |
 |---|---|---|

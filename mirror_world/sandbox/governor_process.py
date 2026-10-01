@@ -103,7 +103,19 @@ class RealGovernor:
         mirror_prison_quorum: int = 2,
         timing_floor_us: float | None = None,
         approval_verifier=None,
+        anchor_start: dict | None = None,
+        observer_start_digest: str | None = None,
+        anchor_registration: dict | None = None,
     ):
+        # Trusted launcher assertion: the observer retained the start before
+        # execution. Matching a digest cannot itself prove remote retention.
+        anchor_event = None
+        if anchor_start is not None:
+            from mirror_world.anchor import binding_event
+
+            anchor_event = binding_event(anchor_start, observer_start_digest, anchor_registration)
+        elif observer_start_digest is not None or anchor_registration is not None:
+            raise ValueError("observer acknowledgment requires a start record")
         if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution)):
             raise ValueError("security switches must be booleans")
         if type(max_mirror_depth) is not int or not 1 <= max_mirror_depth <= 10_000:
@@ -260,6 +272,8 @@ class RealGovernor:
         # trace_checkpoint() and verify_trace().
         self._trace_path = os.path.abspath(trace_path)
         self._trace_chain = HashChainWriter(self._trace_file)
+        if anchor_event is not None:
+            self._emit(anchor_event)
         self._emit({"type": "init", "state_id": "sandbox-entry"})
         self._emit({"type": "state", "id": "sandbox-entry", "capabilities": [], "knowledge": []})
         self._root_authority_emitted = False
