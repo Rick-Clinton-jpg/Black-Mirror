@@ -2,7 +2,7 @@
 
 **Status (2026-10-01, Asia/Kolkata): the 1.2.0 candidate passed the full Linux
 suite in this project's public GitHub CI and the independent UTM Linux VM.**
-This documents the release candidate; the pull request has not yet been merged.
+PR #2 merged this candidate into main on 2026-10-01. The cited validation runs tested the PR/source commits; the merge and later documentation commits have their own CI records.
 
 ## 2026-10-01 informed live-model breakout trial
 
