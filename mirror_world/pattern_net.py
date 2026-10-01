@@ -329,7 +329,7 @@ def tracked_launch(store: PatternStore, start: dict, registration: dict, *,
 
 def predict_next(runs: list[Run], *, model_id: str, design_known: bool,
                  last_action: str, last_response: str, min_runs: int = 3) -> dict:
-    """Empirical branch counts; abstain without independent-run support."""
+    """Empirical branch counts; abstain without distinct accepted launches."""
     model_id = _label(model_id, "model_id")
     last_action = _label(last_action, "last_action")
     last_response = _label(last_response, "last_response")
@@ -355,7 +355,7 @@ def predict_next(runs: list[Run], *, model_id: str, design_known: bool,
               for action, count in sorted(actions.items(), key=lambda pair: (-pair[1], pair[0]))]
     return {"model_id": model_id, "design_known": design_known,
             "context": {"last_action": last_action, "last_response": last_response},
-            "independent_runs": len(supporting_runs), "observations": samples,
+            "supporting_launches": len(supporting_runs), "observations": samples,
             "status": "prediction" if len(supporting_runs) >= min_runs else "insufficient_runs",
             "ranked_actions": ranked}
 

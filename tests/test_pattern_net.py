@@ -97,7 +97,7 @@ def test_prediction_needs_distinct_accepted_runs_and_held_out_evaluation(tmp_pat
     forecast = predict_next(runs, model_id="gpt-6-sol", design_known=True,
                             last_action="read_resource", last_response="ok")
     assert forecast["status"] == "prediction"
-    assert forecast["independent_runs"] == 4
+    assert forecast["supporting_launches"] == 4
     assert forecast["ranked_actions"][0]["action"] == "read_resource"
     score = evaluate_leave_one_run_out(runs)
     assert score["held_out_decisions"] == 8

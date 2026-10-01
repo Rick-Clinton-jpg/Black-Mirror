@@ -362,9 +362,10 @@ or establish recorder truth. Use `python -m mirror_world.anchor --help`.
 
 Experimental [Pattern Net](docs/PATTERN-NET.md) records observer-controlled
 launches, including aborted and unfinished runs, and makes advisory next-action
-forecasts from independently accepted runs. Its frozen-snapshot read planner
-prepares candidate replies without changing enforcement or reading the live
-host. One informed live trial is not enough to validate its predictions.
+forecasts from accepted launches. Its frozen-snapshot read planner prepares
+candidate replies without changing enforcement or reading the live host. The
+[three-launch UTM trial](docs/evidence/pattern-net-2026-10-01/README.md) shows
+branch counts, but has no held-out coverage at the default threshold.
 
 | Article | Module | Evidence checked |
 |---|---|---|

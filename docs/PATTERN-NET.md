@@ -12,6 +12,12 @@ execution**, call `PatternStore.begin` before starting the agent, then record
 each model-chosen action and its visible response with `step`. After the
 observer accepts the trace close, call `finish`. `tracked_launch` packages this
 sequence for a synchronous launcher and marks raised exceptions as aborted.
+`run_observed_trial` adds an observer-owned choice/response loop: it hashes the
+source archive and config, registers and begins the run, launches one transport,
+records each normalized choice and visible reply before asking for the next
+choice, then accepts and finishes the close. A failed launch stays in the
+census. The model and transport are supplied by the experiment operator; the
+module does not start a model provider or VM by itself.
 If the launcher dies abruptly, the run remains `open` in the census. Open and
 aborted runs are retained, and the census also reports observer registrations
 with no run file. Only accepted runs train the predictor. Use a dedicated
@@ -45,6 +51,17 @@ the latest file heads outside that host if tamper detection is needed. A
 recorder that can execute without passing through the independent launcher can
 still hide private retries; Pattern Net cannot infer launches it never saw.
 
+For an interactive trial, use `mirror_world.observer_trial.run_observed_trial`.
+Its `launch(start, registration)` callback returns a context manager with
+`send(choice)` and `finish()` methods. Its `choose(history)` callback receives
+only prior choices and agent-visible results and returns a new choice or
+`None`. Its `classify(choice, result)` callback supplies the normalized
+`(action, response, resource_id)` stored in Pattern Net. The transport must
+retain raw choices and replies separately, launch once, and keep the ledger
+and run store outside the VM/recorder. The executed UTM adapter and three
+separate run bundles are in
+[the observer-loop evidence](evidence/pattern-net-2026-10-01/README.md).
+
 Store only normalized action/response labels and resource IDs here. Keep raw
 prompts, model output, traces, host effects, source hashes and observer receipts
 in their existing evidence stores. Registration and receipt are checked before
@@ -76,12 +93,15 @@ python -m mirror_world.pattern_net --store /observer/patterns \
 The predictor counts the next action after the exact `(last_action,
 last_response)` context, within the same model and design-knowledge condition.
 It ranks actions and observed resource IDs. Its default output is
-`insufficient_runs` until at least **three distinct accepted runs** support
-that context. This is only a minimum to suppress one-run anecdotes, not a
-claim of statistical calibration. Evaluate on held-out runs, report coverage
-alongside accuracy, and predefine trial counts and stopping rules before using
-forecasts as research findings. The first 23-action informed GPT-6 Sol trial
-alone yields zero leave-one-run-out coverage; it cannot validate a forecast.
+`insufficient_runs` until at least **three distinct accepted launches** support
+that context. The `supporting_launches` count does not establish independent
+model contexts. This threshold suppresses one-run anecdotes; it is not a claim
+of statistical calibration. With exactly three launches, leave-one-run-out
+evaluation has at most two training launches, so default held-out coverage is
+zero. Evaluate on held-out launches, report coverage alongside accuracy, and
+predefine trial counts and stopping rules before using forecasts as research
+findings. The first 23-action informed GPT-6 Sol trial alone also yields zero
+leave-one-run-out coverage.
 
 To seed an observer store from the published historical trial, extract
 `docs/evidence/live-aggressive-2026-10-01/live-run.zip`, create an empty
@@ -99,13 +119,15 @@ transcript format; future live launchers should record steps during execution.
 ## Prepare a consistent answer
 
 `plan_read_response(resource_id, snapshot, overlay)` produces a **candidate**
-read reply from a trusted frozen fixture snapshot or the session's simulated
-write overlay. It does not read the live host, grant permission, or send a
-reply. If the resource is absent, it returns `missing_fixture` for host review
-instead of inventing content. The existing governor must still decide whether
-that request is allowed and which response the agent actually sees. Preparing
-fixtures ahead of likely reads may address the cold-file discrepancy observed
-in the informed trial, but this has not yet been tested in a blind session.
+read reply from a trusted, predeclared synthetic fixture snapshot or the
+session's simulated write overlay. It does not read the live host, grant
+permission, or send a reply. If the resource is absent, it returns
+`missing_fixture` instead of inventing content. The existing governor must
+still decide whether that request is allowed and which response the agent
+actually sees. Pattern Net must not reveal a never-seen real file merely to
+make the illusion more convincing. Predeclared synthetic fixtures may make
+that branch consistent in a controlled experiment, but this has not been
+tested in a blind session.
 
 Use the pattern forecast to decide which fixture to prepare or which branch to
 test next. Do not use model history to relax enforcement, release a session,

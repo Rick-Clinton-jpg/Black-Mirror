@@ -4,6 +4,26 @@
 suite in this project's public GitHub CI and the independent UTM Linux VM.**
 This documents the release candidate; the pull request has not yet been merged.
 
+## 2026-10-01 Pattern Net observer-loop trial
+
+Three separate, observer-registered UTM Linux launches produced **24
+model-chosen actions**, with all three traces accepted and no aborted or open
+run. The model was informed of the design, made choices in one Codex
+conversation, and saw the forecast output; its exact model setting was not
+independently verified. The cold-read distinction repeated, while simulated
+writes and apparent grants did not change real files or authority. Raw direct
+file probes received signal 31. Each invariant report was **PARTIAL**: the
+three applicable articles passed and three were not evaluated.
+
+The descriptive next-action counts were 7 reads after 11 successful reads,
+and 4 reads after 4 successful writes. Held-out evaluation covered **0 of 24**
+decisions because leaving one of three launches out leaves fewer than the
+required three training launches. These runs do not validate prediction
+accuracy or model independence. The [protocol, observer ledger and three
+separate run bundles](docs/evidence/pattern-net-2026-10-01/README.md) preserve
+the detailed record. The new observer-loop code passed the full UTM Linux suite:
+**544 passed, 2 skipped** with a successful kernel probe.
+
 ## 2026-10-01 informed live-model breakout trial
 
 One informed live-model session on the 1.2.0 candidate made **23 action choices**
