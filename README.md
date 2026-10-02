@@ -360,6 +360,13 @@ closing submission per registration; verification reports integrity, declared
 completion and start-only coverage separately. It cannot detect hidden retries
 or establish recorder truth. Use `python -m mirror_world.anchor --help`.
 
+[Observer-owned run records](docs/OBSERVER-RUNS.md) retain accepted, aborted
+and unfinished launches through a trusted controller. This recorder counts
+and checks evidence; prediction belongs to the separate
+[Black Mirror Perk Lab](https://github.com/Rick-Clinton-jpg/Black-Mirror-Perk-Lab).
+The [three-launch UTM trial](docs/evidence/pattern-net-2026-10-01/README.md)
+remains available as historical evidence, with its limitations preserved.
+
 | Article | Module | Evidence checked |
 |---|---|---|
 | I — Authority Monotonicity | `invariants.authority` | capability gains without recorded authorization |
