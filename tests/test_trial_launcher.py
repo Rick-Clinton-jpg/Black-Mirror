@@ -9,7 +9,7 @@ import sys
 import pytest
 
 from mirror_world.run_store import RunStore
-from mirror_world.trial_launcher import ModelTurn, launch_trial
+from mirror_world.trial_launcher import FinalTurn, ModelTurn, _step, launch_trial
 from mirror_world.trial_transcript import TranscriptError, verify_transcript
 
 
@@ -103,6 +103,58 @@ def test_exact_reply_persisted_and_accepted(tmp_path):
     outcome = json.loads((store.root / f"{run_id}.assets" / "outcome.json").read_text())
     assert outcome["transcript"] == checkpoint
     assert len(store.load(run_id).steps) == 1
+
+
+def test_scalar_response_field_is_valid_agent_reply():
+    action = b'{"op":"differential_query","query":"draft?","backing":"draft.txt"}'
+    reply = b'{"ok":true,"response":"yes"}\n'
+    assert _step(action, reply) == {
+        "action": "differential_query", "response": "ok", "resource_id": None,
+    }
+
+
+def test_invalid_model_id_does_not_register(tmp_path):
+    store, source, config, worker = prepare(tmp_path)
+    with pytest.raises(Exception, match="model_id"):
+        launch_trial(store, source_archive=source, config_file=config,
+                     model_id="invalid model id", design_known=True,
+                     command=[sys.executable, str(worker), "ok", str(tmp_path)],
+                     timeout=3, next_turn=lambda _: None)
+    assert store.census() == {"started": 0, "accepted": 0, "aborted": 0,
+                              "open": 0, "registrations_without_run": 0}
+
+
+def test_relative_observer_directory_returns_absolute_trace(tmp_path, monkeypatch):
+    store, source, config, worker = prepare(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    relative_store = RunStore(Path("runs"), Path("ledger"))
+    result = launch_trial(
+        relative_store, source_archive=source, config_file=config,
+        model_id="scripted/integration", design_known=False,
+        command=[sys.executable, str(worker), "ok", str(tmp_path)],
+        timeout=3, next_turn=lambda _: None,
+    )
+    assert result["status"] == "accepted"
+    assert Path(result["transcript_path"]).is_absolute()
+
+
+def test_final_model_declaration_is_retained_before_close(tmp_path):
+    store, source, config, worker = prepare(tmp_path)
+
+    def choose(replies):
+        if replies:
+            return FinalTurn(b"final prompt", b"Cannot complete without approval.\n")
+        return ModelTurn(b"task", b"read note", b'{"op":"read_resource","resource":"notes.txt"}')
+
+    result = launch_trial(store, source_archive=source, config_file=config,
+                          model_id="scripted/integration", design_known=True,
+                          command=[sys.executable, str(worker), "ok", str(tmp_path)],
+                          timeout=3, next_turn=choose)
+    records = [json.loads(line) for line in Path(result["transcript_path"]).read_bytes().splitlines()]
+    assert [row["kind"] for row in records[-3:]] == [
+        "model_input", "model_output", "worker_terminal",
+    ]
+    assert base64.b64decode(records[-2]["payload_b64"]) == b"Cannot complete without approval.\n"
 
 
 @pytest.mark.parametrize("mode,expected", [
