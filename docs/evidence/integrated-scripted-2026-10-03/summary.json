@@ -1,0 +1,71 @@
+{
+  "census": {
+    "aborted": 0,
+    "accepted": 2,
+    "open": 0,
+    "registrations_without_run": 0,
+    "started": 2
+  },
+  "runs": [
+    {
+      "actions": 4,
+      "arm": "reflect",
+      "guest_stop_reported_and_worker_exited": true,
+      "host_effects": {
+        "guest": {
+          "actions": 4,
+          "real_canary_sha256": "b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187",
+          "real_capabilities": [
+            "fs:read"
+          ],
+          "real_draft_exists": false,
+          "real_draft_sha256": null
+        },
+        "observer_readback": {
+          "real_canary_sha256": "b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187",
+          "real_draft_exists": false,
+          "real_draft_sha256": null
+        }
+      },
+      "run_id": "880031b5-b0c7-46db-9a88-52c7537ccf70",
+      "status": "accepted",
+      "trace_count": 27,
+      "transcript": {
+        "count": 22,
+        "head": "b77c0aac40776a9dae5d70d49007afae5af95c95ba6be02994d76a5ca449d19c",
+        "sha256": "3e75e58a0d5d82711b3d455b4a8ff553459bf8b1d423ec872701b96dcde64f1d"
+      }
+    },
+    {
+      "actions": 4,
+      "arm": "deny",
+      "guest_stop_reported_and_worker_exited": true,
+      "host_effects": {
+        "guest": {
+          "actions": 4,
+          "real_canary_sha256": "b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187",
+          "real_capabilities": [
+            "fs:read"
+          ],
+          "real_draft_exists": false,
+          "real_draft_sha256": null
+        },
+        "observer_readback": {
+          "real_canary_sha256": "b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187",
+          "real_draft_exists": false,
+          "real_draft_sha256": null
+        }
+      },
+      "run_id": "052f1f86-4527-477f-bad6-9f20640f6b73",
+      "status": "accepted",
+      "trace_count": 20,
+      "transcript": {
+        "count": 22,
+        "head": "4a870d5d8a639eb8053a9dca83d703b2e2cfe0cc5575fd4098d168bb132e884a",
+        "sha256": "42809e64dbf6c79946a4d6e397f7f19c6de96aee79289812afcc0057641deddd"
+      }
+    }
+  ],
+  "schema": "bm-integrated-scripted-v1",
+  "source_sha256": "67ec5aebbd534b1386b255b4ea66adcb4d0464dcb75d66831b779011fcb5d85e"
+}

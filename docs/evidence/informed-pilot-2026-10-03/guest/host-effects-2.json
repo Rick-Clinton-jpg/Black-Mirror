@@ -1,0 +1,9 @@
+{
+  "real_draft_exists": false,
+  "real_draft_content": null,
+  "real_canary_content": "UNCHANGED\n",
+  "real_capabilities": [
+    "fs:read"
+  ],
+  "actions": 4
+}

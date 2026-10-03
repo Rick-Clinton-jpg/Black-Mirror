@@ -106,6 +106,8 @@ class RealGovernor:
         anchor_start: dict | None = None,
         observer_start_digest: str | None = None,
         anchor_registration: dict | None = None,
+        ordinary_denial: bool = False,
+        response_observer=None,
     ):
         # Trusted launcher assertion: the observer retained the start before
         # execution. Matching a digest cannot itself prove remote retention.
@@ -116,8 +118,10 @@ class RealGovernor:
             anchor_event = binding_event(anchor_start, observer_start_digest, anchor_registration)
         elif observer_start_digest is not None or anchor_registration is not None:
             raise ValueError("observer acknowledgment requires a start record")
-        if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution)):
+        if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution, ordinary_denial)):
             raise ValueError("security switches must be booleans")
+        if response_observer is not None and not callable(response_observer):
+            raise ValueError("response_observer must be callable")
         if type(max_mirror_depth) is not int or not 1 <= max_mirror_depth <= 10_000:
             raise ValueError("max_mirror_depth out of range")
         if type(mirror_prison_quorum) is not int or not 1 <= mirror_prison_quorum <= 10_000:
@@ -183,6 +187,13 @@ class RealGovernor:
         self.dual_auth_required = dual_auth_required
         self.enforce_policy = enforce_policy
         self.reflective_closure = reflective_closure
+        # Research control arm: keep the same kernel/policy boundary, but
+        # return explicit denial at points that would otherwise reflect.
+        self.ordinary_denial = ordinary_denial
+        # Trusted controller hook. It receives the exact serialized response
+        # before the bytes are queued for the agent subprocess. Raising stops
+        # the agent rather than allowing an unrecorded response through.
+        self.response_observer = response_observer
         self.max_mirror_depth = max_mirror_depth
         self._policy = OperationPolicy()
         self._approvals = CapabilityApprovals()
@@ -861,7 +872,10 @@ class RealGovernor:
                         except (ValueError, UnicodeError, RecursionError) as exc:
                             raise RuntimeError("invalid agent protocol") from exc
                         response = self._handle_agent_request(agent_id, req)
-                        outgoing.extend((json.dumps(response) + "\n").encode("utf-8"))
+                        wire_response = (json.dumps(response) + "\n").encode("utf-8")
+                        if self.response_observer is not None:
+                            self.response_observer(agent_id, req, wire_response)
+                        outgoing.extend(wire_response)
                         if len(outgoing) > self.MAX_REQUEST_BYTES:
                             raise RuntimeError("agent response buffer limit exceeded")
                         if proc.stdin not in selector.get_map():
@@ -1483,6 +1497,10 @@ class RealGovernor:
         return self._reflect_capability_request(agent_id, capability)
 
     def _reflect_capability_request(self, agent_id: str, capability: str) -> dict:
+        if self.ordinary_denial:
+            self._emit({"type": "operation_denied", "seq": self._next_seq(),
+                        "agent_id": agent_id, "op": "request_capability"})
+            return {"ok": False, "error": "operation not authorized"}
         held = self.agent_capabilities.setdefault(agent_id, set())
         src_id = f"{agent_id}-pre-{self._next_seq()}"
         mirror = synthesize_objective_mirror(
@@ -1626,6 +1644,10 @@ class RealGovernor:
         No real filesystem/network side effects. Supervisor sees is_mirror
         transitions in the trace; the agent does not see reflected flags.
         """
+        if self.ordinary_denial:
+            self._emit({"type": "operation_denied", "seq": self._next_seq(),
+                        "agent_id": agent_id, "op": op})
+            return {"ok": False, "error": "operation not authorized"}
         self._last_used_mirror_plane = True
         self._lock_session(agent_id)
         self._mirror_depth[agent_id] = self.realm.plane_for(agent_id).depth

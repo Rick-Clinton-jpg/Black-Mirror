@@ -46,6 +46,45 @@ The recorder has no prediction or candidate-response API. The historical
 retained registration, trace, close and receipt. It is a retrospective import,
 not evidence that this recorder observed that run as it happened.
 
+## One-shot host launcher (experimental)
+
+`python -m mirror_world.run_launcher` runs on an observer host outside the
+agent VM. It reserves a start and nonce, begins the run record, retains exact
+source/config snapshots, and then starts exactly one worker process. A failed
+launch, nonzero worker exit, timeout, invalid response, or accepted close gets
+an outcome sidecar under `<store>/<run-id>.assets/`; the run census counts the
+attempt even when no trace is returned. An abrupt launcher death leaves an
+open run that must be investigated, never silently dropped.
+
+```bash
+python -m mirror_world.run_launcher \
+  --store /observer/runs --ledger /observer/anchors \
+  --source /observer/source.zip --config /observer/trial.json \
+  --model-id recorded-model-id --timeout 300 \
+  -- /usr/bin/ssh vm-worker /opt/black-mirror/trusted-worker
+```
+
+The command is an argument vector, not a shell expression. The worker reads
+one JSON object on stdin containing the retained start, registration, and
+snapshot paths. On exit zero it prints one JSON object with exactly
+`trace_path`, `closing`, `steps`, `executed_source_sha256`, and
+`executed_config_sha256`. Each step contains `action`, `response`, and
+`resource_id` (nullable). The trace must already be accessible to the observer
+at an absolute path; a remote worker must transfer it to the observer before
+reporting the path. The worker's executed hashes must match the observer's
+snapshots. Store and ledger directories must be inaccessible to the agent VM.
+
+This is a **trusted-worker protocol**, not remote attestation. The observer
+proves what bytes it retained and that it spawned one worker command; it
+cannot prove a dishonest worker loaded those bytes, made only one private
+execution, used the named model, or faithfully labeled steps. A remote timeout
+also cannot prove a guest child died when the SSH process was killed. Use a
+launcher-controlled VM lifecycle and a trusted worker with one governor per
+registration for research-grade trials. Retain provider request IDs and raw
+agent-visible transcripts outside the VM. Never put API credentials in the
+worker command, config archive, or agent VM. The comparison protocol is in
+[DENIAL-REFLECTION-TRIAL.md](DENIAL-REFLECTION-TRIAL.md).
+
 ## Limits and compatibility
 
 Use one observer writer per run. Keep the ledger and store outside the

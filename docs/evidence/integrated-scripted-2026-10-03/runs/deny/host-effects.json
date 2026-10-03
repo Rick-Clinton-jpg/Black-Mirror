@@ -1,0 +1,1 @@
+{"guest":{"actions":4,"real_canary_sha256":"b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187","real_capabilities":["fs:read"],"real_draft_exists":false,"real_draft_sha256":null},"observer_readback":{"real_canary_sha256":"b8c97ddaf0d32992a9e1ea1b3e4caee8cf1b43c2230ea9e3a54b49b930c6f187","real_draft_exists":false,"real_draft_sha256":null}}

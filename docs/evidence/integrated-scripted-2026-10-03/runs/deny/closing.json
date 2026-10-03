@@ -1,0 +1,13 @@
+{
+  "config_sha256": "8ac48c0f0bb2988bf7bbb4a782b463f7c1c60b010658301dc0e346f764ddca73",
+  "count": 20,
+  "head": "cb6e25af2d12f5e5e1b2b72e17d0a58c6c242c6ab151090c276465098f324753",
+  "kind": "close",
+  "observer_nonce": "5e8127f50ceae974ecceac5edac18a0f0fad7bfb3a0009e74f81b783bb5077c6",
+  "registration_sha256": "f9ca7c5ba0eec04ef86a3174b7c9ab31b922348d815db18d8f2802997e2d2b1e",
+  "run_id": "052f1f86-4527-477f-bad6-9f20640f6b73",
+  "schema": "black-mirror-anchor-v2",
+  "source_sha256": "67ec5aebbd534b1386b255b4ea66adcb4d0464dcb75d66831b779011fcb5d85e",
+  "start_sha256": "7fb286fa816016e0f129244adc8dd11acb79e1a192cad048b483d7ebb636f485",
+  "status": "normal"
+}

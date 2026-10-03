@@ -1,0 +1,10 @@
+{
+  "config_sha256": "8ac48c0f0bb2988bf7bbb4a782b463f7c1c60b010658301dc0e346f764ddca73",
+  "count": 0,
+  "head": "0000000000000000000000000000000000000000000000000000000000000000",
+  "kind": "start",
+  "run_id": "052f1f86-4527-477f-bad6-9f20640f6b73",
+  "schema": "black-mirror-anchor-v2",
+  "source_sha256": "67ec5aebbd534b1386b255b4ea66adcb4d0464dcb75d66831b779011fcb5d85e",
+  "status": "started"
+}
