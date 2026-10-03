@@ -55,7 +55,7 @@ def setup(tmp_path):
 
 def run(store, source, config, script, tmp_path, mode, timeout=3):
     return launch_once(store, source_archive=source, config_file=config,
-        model_id="synthetic-worker", design_known=False,
+        model_id="openrouter/example-model:free", design_known=False,
         command=[sys.executable, str(script), mode, str(tmp_path)], timeout=timeout)
 
 
@@ -70,6 +70,7 @@ def test_one_process_accepted_and_source_snapshot_retained(tmp_path):
     assert (assets / "source.archive").read_bytes() == source.read_bytes()
     assert json.loads((assets / "outcome.json").read_text())["status"] == "accepted"
     assert len(store.load(run_id).steps) == 1
+    assert store.load(run_id).model_id == "openrouter/example-model:free"
 
 
 @pytest.mark.parametrize("mode,expected", [

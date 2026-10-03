@@ -22,6 +22,7 @@ from mirror_world import anchor
 from mirror_world.hashchain import ChainVerifier, canonical, seal
 
 _LABEL = re.compile(r"\A[a-z][a-z0-9:_-]{0,63}\Z")
+_MODEL_ID = re.compile(r"\A[A-Za-z0-9][A-Za-z0-9._:/+-]{0,127}\Z")
 _DIGEST = re.compile(r"\A[0-9a-f]{64}\Z")
 _MAX_RUN_BYTES = 1_048_576
 _MAX_LINE_BYTES = 8192
@@ -35,6 +36,12 @@ class RunStoreError(ValueError):
 def _label(value: object, name: str) -> str:
     if type(value) is not str or _LABEL.fullmatch(value) is None:
         raise RunStoreError(f"{name} must be a short lowercase identifier")
+    return value
+
+
+def _model_id(value: object) -> str:
+    if type(value) is not str or _MODEL_ID.fullmatch(value) is None:
+        raise RunStoreError("model_id must be a bounded provider/model identifier")
     return value
 
 
@@ -114,7 +121,7 @@ class RunStore:
             raise RunStoreError("registration is not retained in the observer ledger")
         if type(design_known) is not bool:
             raise RunStoreError("design_known must be a boolean")
-        event = {"kind": "begin", "run_id": run_id, "model_id": _label(model_id, "model_id"),
+        event = {"kind": "begin", "run_id": run_id, "model_id": _model_id(model_id),
                  "design_known": design_known, "start": start, "registration": registration}
         encoded = canonical(seal(event, "0" * 64)) + b"\n"
         path = self._path(run_id)
@@ -157,7 +164,7 @@ class RunStore:
         _run_id(first["run_id"])
         if path.stem != first["run_id"]:
             raise RunStoreError("run filename disagrees with record")
-        _label(first["model_id"], "model_id")
+        _model_id(first["model_id"])
         if type(first["design_known"]) is not bool:
             raise RunStoreError("invalid design_known value")
         try:
