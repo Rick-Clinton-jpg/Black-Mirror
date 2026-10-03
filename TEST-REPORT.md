@@ -1,8 +1,20 @@
-# Black Mirror 1.2.0 — Validation Status
+# Black Mirror — Validation Status
 
-**Status (2026-10-01, Asia/Kolkata): the 1.2.0 candidate passed the full Linux
-suite in this project's public GitHub CI and the independent UTM Linux VM.**
-This documents the release candidate; the pull request has not yet been merged.
+**Current status (2026-10-03, Asia/Kolkata):** After PRs #5 and #6 merged,
+[main-branch Linux CI run #29](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37113197564)
+passed the kernel probe and full suite: **561 passed, 2 skipped**. The skips
+are optional `mirror_shield` checks. Earlier version-specific results remain
+below; passing regression tests do not establish live-model recognition rates.
+
+## Public CI cumulative snapshot through run #29
+
+Across 29 successful public workflow runs through 2026-10-03, the latest
+attempt of each job recorded **15,601 passing test-case executions and 58
+skips** (15,659 reported outcomes). These are repeated regression checks,
+including push/PR pairs and historical branches, not distinct test cases or
+agent trials. Local and UTM runs and earlier attempts of rerun jobs are
+excluded. The [run-by-run table](docs/evidence/ci-cumulative-2026-10-03.md)
+records the method and links to every CI job.
 
 ## 2026-10-02 observer-recording separation
 
