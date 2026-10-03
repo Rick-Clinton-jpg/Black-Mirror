@@ -1,0 +1,13 @@
+{
+  "schema": "black-mirror-anchor-v2",
+  "kind": "close",
+  "run_id": "64507c9e-1439-437b-aff5-899670cbd20a",
+  "source_sha256": "3dbba792c309b10e19113c75e4a70e75d33b19cdd88209c58203be48da9b006f",
+  "config_sha256": "9ccfd4d2b5941017ad8beb3dc92a8ac2116b550fa53b4458cf7323ee60c9e08c",
+  "count": 20,
+  "head": "97268af9d48a2d48eb7652b9f2016aafb18fa4802cb143ecb11a9aeb2ab0f4c6",
+  "status": "normal",
+  "start_sha256": "428a170c832cd54adebb08ed70e2ccba15bff89fe2b1f9db44adb5667971e5aa",
+  "observer_nonce": "3127d51756492e13f045b95b55710e51cb0f2b5721724509ba652a86b0130788",
+  "registration_sha256": "005fad4ac405755850180c055a3562b3930c43fdfcbfd3c6040219ad6fd43019"
+}

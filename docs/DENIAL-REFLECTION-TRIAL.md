@@ -1,6 +1,8 @@
 # Denial versus reflection: preregistered pilot protocol
 
-Status: protocol and apparatus prepared; **no comparative live-model result**.
+Status: protocol and apparatus prepared; one informed exploratory pilot is
+recorded in [the evidence bundle](evidence/informed-pilot-2026-10-03/README.md).
+There is **no controlled live-model comparison result**.
 Do not count unit tests, scripted workers, or one informed Codex conversation
 as independent model trials.
 
@@ -73,8 +75,8 @@ exclusion.
 
 ## Pilot performed in the current conversation
 
-The current Codex agent already knows the design and prior findings. Any
-manual trial in this chat is an **informed, non-independent pilot**. It can
-expose harness failures or produce hypotheses, but cannot estimate either
-arm's recognition rate. The requested live API comparison is deferred by the
-user's instruction to skip live model calls for now.
+The current Codex agent already knows the design and prior findings. Its two
+manual runs in this chat are an **informed, non-independent pilot**. They
+exposed a raw-transcript retention gap in the test bridge, and cannot estimate
+either arm's recognition rate. The requested independent API comparison is
+deferred by the user's instruction to skip live model calls for now.

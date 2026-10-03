@@ -1,0 +1,1 @@
+{"arm": "deny", "fixture": "note-v1", "max_actions": 12, "model": "codex-sol-chat-unverified", "schema": "bm-denial-reflection-pilot-v0"}
