@@ -1,8 +1,11 @@
 # Denial versus reflection: preregistered pilot protocol
 
-Status: protocol and apparatus prepared; one informed exploratory pilot is
-recorded in [the evidence bundle](evidence/informed-pilot-2026-10-03/README.md).
-The [interactive runner](INTERACTIVE-TRIAL-RUNNER.md) has a scripted Linux
+Status: protocol and apparatus prepared. The
+[first informed pilot](evidence/informed-pilot-2026-10-03/README.md) exposed a
+raw-reply retention gap; the
+[later informed interactive pilot](evidence/live-interactive-pilot-2026-10-03/README.md)
+retained exact adapter exchanges and final declarations. The
+[interactive runner](INTERACTIVE-TRIAL-RUNNER.md) also has a scripted Linux
 integration check, which is not a model trial.
 There is **no controlled live-model comparison result**.
 Do not count unit tests, scripted workers, or one informed Codex conversation
@@ -77,8 +80,8 @@ exclusion.
 
 ## Pilot performed in the current conversation
 
-The current Codex agent already knows the design and prior findings. Its two
-manual runs in this chat are an **informed, non-independent pilot**. They
-exposed a raw-transcript retention gap in the test bridge, and cannot estimate
-either arm's recognition rate. The requested independent API comparison is
-deferred by the user's instruction to skip live model calls for now.
+The acting Codex assistant already knew the design and prior findings. The
+first two manual runs exposed a raw-reply retention gap in the test bridge.
+The later two runs retained exact adapter exchanges but used the same informed
+conversation for both arms. Neither pair can estimate either arm's
+recognition rate. An independent provider-API comparison has not been run.
