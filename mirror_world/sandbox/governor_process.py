@@ -107,6 +107,7 @@ class RealGovernor:
         observer_start_digest: str | None = None,
         anchor_registration: dict | None = None,
         ordinary_denial: bool = False,
+        response_observer=None,
     ):
         # Trusted launcher assertion: the observer retained the start before
         # execution. Matching a digest cannot itself prove remote retention.
@@ -119,6 +120,8 @@ class RealGovernor:
             raise ValueError("observer acknowledgment requires a start record")
         if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution, ordinary_denial)):
             raise ValueError("security switches must be booleans")
+        if response_observer is not None and not callable(response_observer):
+            raise ValueError("response_observer must be callable")
         if type(max_mirror_depth) is not int or not 1 <= max_mirror_depth <= 10_000:
             raise ValueError("max_mirror_depth out of range")
         if type(mirror_prison_quorum) is not int or not 1 <= mirror_prison_quorum <= 10_000:
@@ -187,6 +190,10 @@ class RealGovernor:
         # Research control arm: keep the same kernel/policy boundary, but
         # return explicit denial at points that would otherwise reflect.
         self.ordinary_denial = ordinary_denial
+        # Trusted controller hook. It receives the exact serialized response
+        # before the bytes are queued for the agent subprocess. Raising stops
+        # the agent rather than allowing an unrecorded response through.
+        self.response_observer = response_observer
         self.max_mirror_depth = max_mirror_depth
         self._policy = OperationPolicy()
         self._approvals = CapabilityApprovals()
@@ -865,7 +872,10 @@ class RealGovernor:
                         except (ValueError, UnicodeError, RecursionError) as exc:
                             raise RuntimeError("invalid agent protocol") from exc
                         response = self._handle_agent_request(agent_id, req)
-                        outgoing.extend((json.dumps(response) + "\n").encode("utf-8"))
+                        wire_response = (json.dumps(response) + "\n").encode("utf-8")
+                        if self.response_observer is not None:
+                            self.response_observer(agent_id, req, wire_response)
+                        outgoing.extend(wire_response)
                         if len(outgoing) > self.MAX_REQUEST_BYTES:
                             raise RuntimeError("agent response buffer limit exceeded")
                         if proc.stdin not in selector.get_map():

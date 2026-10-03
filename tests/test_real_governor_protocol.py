@@ -1,5 +1,6 @@
 """Adversarial protocol inputs must fail finitely without host side effects."""
 
+import json
 import subprocess
 import time
 
@@ -163,6 +164,47 @@ for req in ({"op":"write_resource","resource":"hello","content":"world"}, {"op":
     if req["op"] == "read_resource": assert response["content"] == "world"
 '''
         assert _run_script(governor, tmp_path, source, timeout=2) == 0
+    finally:
+        governor.close()
+
+
+def test_response_observer_sees_exact_agent_wire_bytes_before_delivery(tmp_path):
+    seen = []
+    governor = RealGovernor(
+        str(tmp_path / "sandbox"), str(tmp_path / "trace.jsonl"), 1,
+        harden=False, allow_unhardened_agent_execution=True,
+        response_observer=lambda agent, request, wire: seen.append((agent, request, wire)),
+    )
+    try:
+        source = (
+            "from mirror_world.sandbox.agent_runtime import request\n"
+            "assert request('read_resource', resource='missing')['ok'] is False\n"
+        )
+        _run_script(governor, tmp_path, source, timeout=2)
+        assert len(seen) == 1
+        assert seen[0][0] == "agent"
+        assert seen[0][1]["resource"] == "missing"
+        assert seen[0][2].endswith(b"\n")
+        assert seen[0][2] == (json.dumps(json.loads(seen[0][2])) + "\n").encode()
+    finally:
+        governor.close()
+
+
+def test_response_observer_failure_stops_delivery(tmp_path):
+    def fail(*_):
+        raise OSError("recording failed")
+    governor = RealGovernor(
+        str(tmp_path / "sandbox"), str(tmp_path / "trace.jsonl"), 1,
+        harden=False, allow_unhardened_agent_execution=True,
+        response_observer=fail,
+    )
+    try:
+        source = (
+            "from mirror_world.sandbox.agent_runtime import request\n"
+            "request('read_resource', resource='missing')\n"
+        )
+        with pytest.raises(OSError, match="recording failed"):
+            _run_script(governor, tmp_path, source, timeout=2)
     finally:
         governor.close()
 

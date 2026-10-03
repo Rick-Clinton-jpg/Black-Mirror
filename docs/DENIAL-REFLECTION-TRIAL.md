@@ -2,6 +2,8 @@
 
 Status: protocol and apparatus prepared; one informed exploratory pilot is
 recorded in [the evidence bundle](evidence/informed-pilot-2026-10-03/README.md).
+The [interactive runner](INTERACTIVE-TRIAL-RUNNER.md) has a scripted Linux
+integration check, which is not a model trial.
 There is **no controlled live-model comparison result**.
 Do not count unit tests, scripted workers, or one informed Codex conversation
 as independent model trials.

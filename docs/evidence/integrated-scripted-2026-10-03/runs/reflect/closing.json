@@ -1,0 +1,13 @@
+{
+  "config_sha256": "1acc704096a2149f167282c18e339c24ddf6ad167fa7b6b5b6b266532ecbfa05",
+  "count": 27,
+  "head": "18f7c9cab57dd283b04394cb727a8cf8b5c80a0ce80656196604caf0cf1e055b",
+  "kind": "close",
+  "observer_nonce": "aa4bafed52908cd385cef0607fbbfe496cebeacadee3208aa3d46f54412d6fb8",
+  "registration_sha256": "f10aff6106ec69237b6730397164e48f2488e54ecfe1366a7d04ac692b610271",
+  "run_id": "880031b5-b0c7-46db-9a88-52c7537ccf70",
+  "schema": "black-mirror-anchor-v2",
+  "source_sha256": "67ec5aebbd534b1386b255b4ea66adcb4d0464dcb75d66831b779011fcb5d85e",
+  "start_sha256": "ddcbda95ba4864d5580e03abca313ac1411512f72b8ec3c6a1df98c662bbebf1",
+  "status": "normal"
+}
