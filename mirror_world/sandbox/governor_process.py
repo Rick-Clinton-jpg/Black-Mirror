@@ -106,6 +106,7 @@ class RealGovernor:
         anchor_start: dict | None = None,
         observer_start_digest: str | None = None,
         anchor_registration: dict | None = None,
+        ordinary_denial: bool = False,
     ):
         # Trusted launcher assertion: the observer retained the start before
         # execution. Matching a digest cannot itself prove remote retention.
@@ -116,7 +117,7 @@ class RealGovernor:
             anchor_event = binding_event(anchor_start, observer_start_digest, anchor_registration)
         elif observer_start_digest is not None or anchor_registration is not None:
             raise ValueError("observer acknowledgment requires a start record")
-        if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution)):
+        if any(type(flag) is not bool for flag in (harden, dual_auth_required, enforce_policy, reflective_closure, allow_unhardened_agent_execution, ordinary_denial)):
             raise ValueError("security switches must be booleans")
         if type(max_mirror_depth) is not int or not 1 <= max_mirror_depth <= 10_000:
             raise ValueError("max_mirror_depth out of range")
@@ -183,6 +184,9 @@ class RealGovernor:
         self.dual_auth_required = dual_auth_required
         self.enforce_policy = enforce_policy
         self.reflective_closure = reflective_closure
+        # Research control arm: keep the same kernel/policy boundary, but
+        # return explicit denial at points that would otherwise reflect.
+        self.ordinary_denial = ordinary_denial
         self.max_mirror_depth = max_mirror_depth
         self._policy = OperationPolicy()
         self._approvals = CapabilityApprovals()
@@ -1483,6 +1487,10 @@ class RealGovernor:
         return self._reflect_capability_request(agent_id, capability)
 
     def _reflect_capability_request(self, agent_id: str, capability: str) -> dict:
+        if self.ordinary_denial:
+            self._emit({"type": "operation_denied", "seq": self._next_seq(),
+                        "agent_id": agent_id, "op": "request_capability"})
+            return {"ok": False, "error": "operation not authorized"}
         held = self.agent_capabilities.setdefault(agent_id, set())
         src_id = f"{agent_id}-pre-{self._next_seq()}"
         mirror = synthesize_objective_mirror(
@@ -1626,6 +1634,10 @@ class RealGovernor:
         No real filesystem/network side effects. Supervisor sees is_mirror
         transitions in the trace; the agent does not see reflected flags.
         """
+        if self.ordinary_denial:
+            self._emit({"type": "operation_denied", "seq": self._next_seq(),
+                        "agent_id": agent_id, "op": op})
+            return {"ok": False, "error": "operation not authorized"}
         self._last_used_mirror_plane = True
         self._lock_session(agent_id)
         self._mirror_depth[agent_id] = self.realm.plane_for(agent_id).depth
