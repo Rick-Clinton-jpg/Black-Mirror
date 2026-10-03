@@ -23,7 +23,7 @@ from typing import Callable
 from mirror_world import anchor
 from mirror_world.hashchain import canonical
 from mirror_world.run_launcher import LaunchError, _exclusive_json, _snapshot, _unique, _invalid_constant
-from mirror_world.run_store import RunStore
+from mirror_world.run_store import RunStore, _model_id
 from mirror_world.trial_transcript import TranscriptError, TranscriptWriter, verify_transcript
 
 MAX_FRAME = 1_048_576
@@ -38,6 +38,14 @@ class ModelTurn:
     model_input: bytes
     model_output: bytes
     action: bytes
+
+
+@dataclass(frozen=True)
+class FinalTurn:
+    """Exact model input/output bytes for a terminal declaration."""
+
+    model_input: bytes
+    model_output: bytes
 
 
 class TrialProtocolError(LaunchError):
@@ -145,9 +153,10 @@ def _step(action: bytes, reply: bytes) -> dict:
     op = request.get("op")
     if type(op) is not str or not op or len(op) > 64:
         raise TrialProtocolError("invalid action operation")
-    result = response.get("response", response)
-    if type(result) is not dict:
-        raise TrialProtocolError("invalid agent-facing response")
+    # Some valid operations return a scalar `response` field inside the
+    # top-level result (for example differential_query returns "yes").
+    # Only unwrap a nested object when it is actually a result envelope.
+    result = response.get("response") if type(response.get("response")) is dict else response
     label = "ok" if result.get("ok") is True else "denied" if result.get("error") == "operation not authorized" else "error"
     resource = request.get("resource", request.get("capability"))
     if resource is not None and (type(resource) is not str or len(resource) > 256):
@@ -158,7 +167,7 @@ def _step(action: bytes, reply: bytes) -> dict:
 def launch_trial(
     store: RunStore, *, source_archive: str | Path, config_file: str | Path,
     model_id: str, design_known: bool, command: list[str], timeout: float,
-    next_turn: Callable[[tuple[bytes, ...]], ModelTurn | None],
+    next_turn: Callable[[tuple[bytes, ...]], ModelTurn | FinalTurn | None],
 ) -> dict:
     """One registration, one trusted worker, interactive model turns.
 
@@ -172,11 +181,16 @@ def launch_trial(
         raise ValueError("command must be a nonempty argument vector")
     if type(timeout) not in (int, float) or not 0 < timeout <= 3600:
         raise ValueError("timeout must be between 0 and 3600 seconds")
+    # Validate before observer registration; a malformed identifier must not
+    # leave an orphan registration for an execution that could never start.
+    _model_id(model_id)
     source_archive, config_file = Path(source_archive), Path(config_file)
     start = anchor.start_record(anchor.file_digest(source_archive), anchor.file_digest(config_file))
     registration = anchor.register_start(start, store.ledger)
     run_id = store.begin(start, registration, model_id=model_id, design_known=design_known)
-    assets = store.root / f"{run_id}.assets"
+    # Worker handoff and returned trace paths must be absolute even when a
+    # caller constructed RunStore from a relative output directory.
+    assets = store.root.resolve() / f"{run_id}.assets"
     proc = None
     transcript = None
     outcome = "launch_error"
@@ -226,6 +240,12 @@ def launch_trial(
                 outcome = "adapter_error"
                 raise
             if turn is None:
+                break
+            if type(turn) is FinalTurn:
+                if type(turn.model_input) is not bytes or type(turn.model_output) is not bytes:
+                    raise TrialProtocolError("model adapter returned invalid final turn")
+                transcript.append("model_input", turn.model_input)
+                transcript.append("model_output", turn.model_output)
                 break
             if type(turn) is not ModelTurn or any(type(x) is not bytes for x in (turn.model_input, turn.model_output, turn.action)):
                 raise TrialProtocolError("model adapter returned invalid turn")
