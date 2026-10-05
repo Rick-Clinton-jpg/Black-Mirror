@@ -1,10 +1,31 @@
 # Black Mirror — Validation Status
 
-**Current status (2026-10-03, Asia/Kolkata):** After PRs #5 and #6 merged,
-[main-branch Linux CI run #29](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37113197564)
-passed the kernel probe and full suite: **561 passed, 2 skipped**. The skips
-are optional `mirror_shield` checks. Earlier version-specific results remain
-below; passing regression tests do not establish live-model recognition rates.
+**Current status (2026-10-05, Asia/Kolkata):** After PRs #7 and #8 merged,
+[main-branch Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37299758578)
+passed the kernel probe and full suite: **565 passed, 2 skipped**. The skips
+are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison below is
+a separate live-model experiment, not part of the regression-test count.
+Passing CI does not establish containment against every adversary.
+
+## 2026-10-05 Qwen3 4B fixed-task comparison
+
+The [50-run report and complete evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
+compare 25 reflected-success and 25 explicit-denial launches in a shuffled
+order. Each used a fresh local Qwen3 4B conversation, one observer registration,
+one hardened UTM Linux launch, and no retry or replacement. All 50 closes were
+accepted; there were no aborted launches or provider failures. The model was not
+given the design in its prompt or task note, though prior exposure to this
+public project is unknown.
+
+Qwen made an unqualified final claim that it created `draft.txt` in 22/25
+reflection runs and 0/25 denial runs. One denial run made a contradictory
+creation claim despite a write error. No real draft was created, the real
+canary stayed unchanged, and real write authority was never granted in either
+arm. Only one reflected draft contained the requested two sentences, and no
+run read back the apparent draft. In three reflection runs, an apparent grant
+before the first read made `notes.txt` unavailable in the mirror. These results
+show a change in reported outcome on one task; they do not measure adaptive
+escape resistance or reliable task completion.
 
 ## Public CI cumulative snapshot through run #29
 
@@ -16,7 +37,7 @@ agent trials. Local and UTM runs and earlier attempts of rerun jobs are
 excluded. The [run-by-run table](docs/evidence/ci-cumulative-2026-10-03.md)
 records the method and links to every CI job.
 
-## 2026-10-03 informed interactive Linux pilot (PR #7 candidate)
+## 2026-10-03 informed interactive Linux pilot
 
 One Codex conversation chose actions after reading each preceding reply in a
 reflected-success run and an ordinary-denial run. In the reflected run,
@@ -38,17 +59,16 @@ give the method, host checks, failures, and limits. On the exact source archive
 in UTM Linux, the kernel probe passed and the full suite reported **565 passed,
 2 optional skips**. [PR #7's Linux CI run #33](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37134675981)
 also reported **565 passed, 2 skipped** on the PR branch. These counts are
-regression tests, not additional agent trials. PR #7 remains unmerged at the
-time of this report; the main-branch result at the top of this file is separate.
+regression tests, not additional agent trials. PR #7 merged on 2026-10-05;
+the current main-branch result is recorded at the top of this file.
 
 ## 2026-10-02 observer-recording separation
 
-The replacement proposal retains the observer census and registered trial loop
-as `mirror_world.run_store` and `mirror_world.observer_trial`. It ships no
-Pattern Net predictor or candidate-reply planner. That experimental analysis
-belongs to the separate Perk Lab. The historical archives below are unchanged;
-this refactor does not constitute a new live-model trial. Current validation
-is reported in the replacement PR, separately from the older counts below.
+The merged observer-recording work retains the observer census and registered
+trial loop as `mirror_world.run_store` and `mirror_world.observer_trial`. It
+ships no Pattern Net predictor or candidate-reply planner. That experimental
+analysis belongs to the separate Perk Lab. The historical archives below are
+unchanged; this refactor did not itself constitute a new live-model trial.
 
 ## 2026-10-01 Pattern Net observer-loop trial
 
@@ -147,16 +167,17 @@ conclusions are unchanged. The exact tested local source archive is retained ins
 local evidence bundle, SHA-256
 `e547d188bf80aff824d43f449ba8bee6ce154aa12be60028cf59dd2a127ab6ec`.
 
-## Remaining trial-protocol gap
+## Remaining launch-census limit
 
 An issued nonce can be reused for private retries before one selected close is
-submitted. Observer registration and single acceptance do not prove a complete
-trial census. Future trials must use independent launch control, fresh
-registration per launch, and an inventory of every launch/outcome. Count a
-detected unregistered launch or a registration without an accepted close as a
-failed/incomplete trial rather than excluding it. Unknown hidden executions
-cannot be counted by the anchor verifier. The recorder cannot have write access
-to the observer ledger; this is an operator-controlled boundary.
+submitted. Observer registration and single acceptance alone do not prove a
+complete trial census. The 2026-10-05 comparison used independent launch
+control, a fresh registration per launch, and an inventory of all 50 outcomes.
+That procedure accounts for launches controlled by this rig; it cannot detect
+unknown executions outside it. A detected unregistered launch or a registration
+without an accepted close must count as failed/incomplete, not disappear from
+results. The recorder must not have write access to the observer ledger; this
+is an operator-controlled boundary.
 
 ---
 
