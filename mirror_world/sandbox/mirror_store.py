@@ -1,8 +1,9 @@
 """Adaptive per-agent simulated worlds for Mirror World V8.
 
-The active world is always synthetic. A tree may grow when visible behavior
-suggests that the current world no longer matches the agent's stated objective,
-but no transition can acquire real data or real authority.
+The active world is simulated. The governor may supply bounded snapshots of
+explicitly read-granted real files when a session first seals. A tree may grow
+when visible behavior suggests that the current world no longer matches the
+agent's stated objective; layer growth itself acquires no real authority.
 """
 
 from __future__ import annotations
@@ -152,6 +153,7 @@ class AgentMirrorPlane:
     step: int = 0
     store: dict[str, bytes] = field(default_factory=dict)
     bindings: set[str] = field(default_factory=set)
+    synthetic_resources: set[str] = field(default_factory=set)
     journal: list[str] = field(default_factory=list)
     dummy_capabilities: set[str] = field(default_factory=set)
 
@@ -176,6 +178,7 @@ class AgentMirrorPlane:
             return {"ok": False, "error": "resource unavailable"}
         self.store[resource] = data
         self.bindings.add(resource)
+        self.synthetic_resources.discard(resource)
         self.tick()
         self._ambient_growth()
         return {"ok": True}
@@ -199,6 +202,7 @@ class AgentMirrorPlane:
         objective: str,
         *,
         wishlist: dict | None = None,
+        known_real_resources: frozenset[str] = frozenset(),
     ) -> "AgentMirrorPlane":
         """Grow a deeper simulated layer from the agent's accumulated asks.
 
@@ -217,6 +221,7 @@ class AgentMirrorPlane:
             step=self.step,
             store={name: bytes(value) for name, value in self.store.items()},
             bindings=set(self.bindings),
+            synthetic_resources=set(self.synthetic_resources),
             journal=list(self.journal[-128:]),
             dummy_capabilities=set(self.dummy_capabilities),
         )
@@ -224,6 +229,7 @@ class AgentMirrorPlane:
         for leak_name in ("door-manifest.json", "workspace-status.json"):
             child.store.pop(leak_name, None)
             child.bindings.discard(leak_name)
+            child.synthetic_resources.discard(leak_name)
 
         wishes = wishlist or {}
         for cap in wishes.get("capabilities") or []:
@@ -232,13 +238,15 @@ class AgentMirrorPlane:
         for res in wishes.get("resources") or []:
             if not valid_mirror_resource_name(res):
                 continue
-            if res not in child.store:
+            if res not in child.store and res not in known_real_resources:
                 # Neutral content only — no layer/door/simulation vocabulary.
-                body = {"ok": True, "resource": res, "content": ""}
-                payload = json.dumps(body, sort_keys=True).encode("utf-8")
+                # The store contains file bytes, not a serialized tool reply.
+                # read() wraps these bytes in the protocol response later.
+                payload = b""
                 if len(payload) <= _MAX_RESOURCE_BYTES and len(child.store) < _MAX_RESOURCES:
                     child.store[res] = payload
                     child.bindings.add(res)
+                    child.synthetic_resources.add(res)
         # Journal stays internal to the plane machinery; not a special
         # agent-facing plaque. Ambient growth may overwrite system-journal.log.
         child.journal.append(
@@ -302,13 +310,14 @@ class AgentWorldTree:
     def total_bytes(self) -> int:
         return sum(len(value) for layer in self.layers.values() for value in layer.store.values())
 
-    def transition(self, reason: str) -> bool:
+    def transition(self, reason: str, *, known_real_resources: frozenset[str] = frozenset()) -> bool:
         if len(self.layers) >= _MAX_LAYERS or self.total_bytes() >= _MAX_WORLD_BYTES:
             return False
         next_id = f"world-{len(self.layers)}"
         wishes = self.intent.wishlist()
         child = self.active.clone(
             next_id, reason, self.intent.primary, wishlist=wishes,
+            known_real_resources=known_real_resources,
         )
         projected = self.total_bytes() + sum(len(value) for value in child.store.values())
         if projected > _MAX_WORLD_BYTES:
@@ -362,7 +371,10 @@ class MirrorRealm:
         transitioned = (
             should_transition
             and allow_transition
-            and tree.transition("recognition-threshold")
+            and tree.transition(
+                "recognition-threshold",
+                known_real_resources=frozenset(self.observed.get(agent_id, {})),
+            )
         )
         self.planes[agent_id] = tree.active
         return transitioned
@@ -402,14 +414,14 @@ class MirrorRealm:
         return projected <= _MAX_WORLD_BYTES
 
     def remember(self, agent_id: str, resource: str, content: str) -> None:
-        """Keep a copy of what the agent already saw on the real path (0.9.10).
+        """Keep a copy of real-path content or a read-granted seal snapshot.
 
         Called after a successful real read (the content returned) or real
         write (the content written). Before 0.9.10 a sealed session found
         every file it had just read "unavailable", an inconsistency an agent
         could use to tell it had been moved. Only content the agent already
-        holds is kept, so no new real data reaches the mirror; files it never
-        saw, and later changes to real files, stay out.
+        holds was kept. Seal snapshots may also add as-yet-unread resources
+        with explicit read grants; later changes to real files stay out.
         """
         if type(agent_id) is not str or not agent_id:
             return
@@ -433,7 +445,9 @@ class MirrorRealm:
     def read(self, agent_id: str, resource: str) -> dict:
         """Mirror writes win; otherwise the agent's last real view; otherwise unavailable."""
         plane = self.plane_for(agent_id)
-        if valid_mirror_resource_name(resource) and resource not in plane.store:
+        if valid_mirror_resource_name(resource) and (
+            resource not in plane.store or resource in plane.synthetic_resources
+        ):
             data = self.observed.get(agent_id, {}).get(resource)
             if data is not None:
                 plane.tick()
@@ -461,6 +475,7 @@ class MirrorRealm:
         destination = self.plane_for(to_agent)
         destination.store[resource] = bytes(source.store[resource])
         destination.bindings.add(resource)
+        destination.synthetic_resources.discard(resource)
         destination.tick()
         return {"ok": True}
 

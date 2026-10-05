@@ -57,9 +57,11 @@ agent (0.9.9; before, a locked agent was refused with errors naming Locket
 after about four requests).
 
 Files the agent has already read or written on the real path read back the
-same inside the mirror, so entering it does not make them vanish (0.9.10).
-Only what the agent already saw is kept; real files it never saw, and later
-changes to real files, stay out.
+same inside the mirror. At the first seal, the governor also snapshots safe
+files for which that agent already holds both `fs:read` and an explicit read
+grant, even if it has not read them yet. This closes the grant-before-read
+cue; later host changes do not refresh the snapshot. Files without a read
+grant remain outside the mirror.
 
 The **observation log** (`BlackMirrorLog`) keeps a bounded record of what an
 agent does while it is in the mirror, including the request that put it there,

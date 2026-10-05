@@ -1390,20 +1390,10 @@ class RealGovernor:
         return {"ok": True}
 
     def _read_resource(self, agent_id: str, resource: str) -> dict:
-        if not self._valid_resource_name(resource):
-            return {"ok": False, "error": "invalid resource request"}
-        try:
-            fd = os.open(resource, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=self._resources_fd)
-            with os.fdopen(fd, "rb") as source:
-                info = os.fstat(source.fileno())
-                if not self._safe_resource_file(info) or info.st_size > self.MAX_RESOURCE_BYTES:
-                    return {"ok": False, "error": "resource unavailable"}
-                data = source.read(self.MAX_RESOURCE_BYTES + 1)
-                if len(data) > self.MAX_RESOURCE_BYTES or not self._safe_resource_file(os.fstat(source.fileno())):
-                    return {"ok": False, "error": "resource unavailable"}
-                content = data.decode("utf-8")
-        except (OSError, UnicodeError):
-            return {"ok": False, "error": "resource unavailable"}
+        result = self._read_resource_file(resource)
+        if not result.get("ok"):
+            return result
+        content = result["content"]
         self._emit(
             {
                 "type": "resource_access",
@@ -1420,7 +1410,7 @@ class RealGovernor:
             and self._session_mode.get(agent_id) != "simulated"
             and agent_id not in self._agents_sealed_by_read
         ):
-            self._lock_session(agent_id)
+            self._lock_session(agent_id, just_read=resource)
             self._agents_sealed_by_read.add(agent_id)
             self._emit({
                 "type": "seal_after_read",
@@ -1428,6 +1418,24 @@ class RealGovernor:
                 "agent_id": agent_id,
                 "resource_id": resource,
             })
+        return {"ok": True, "content": content}
+
+    def _read_resource_file(self, resource: str) -> dict:
+        """Read a safe host file without routing or trace side effects."""
+        if not self._valid_resource_name(resource):
+            return {"ok": False, "error": "invalid resource request"}
+        try:
+            fd = os.open(resource, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=self._resources_fd)
+            with os.fdopen(fd, "rb") as source:
+                info = os.fstat(source.fileno())
+                if not self._safe_resource_file(info) or info.st_size > self.MAX_RESOURCE_BYTES:
+                    return {"ok": False, "error": "resource unavailable"}
+                data = source.read(self.MAX_RESOURCE_BYTES + 1)
+                if len(data) > self.MAX_RESOURCE_BYTES or not self._safe_resource_file(os.fstat(source.fileno())):
+                    return {"ok": False, "error": "resource unavailable"}
+                content = data.decode("utf-8")
+        except (OSError, UnicodeError):
+            return {"ok": False, "error": "resource unavailable"}
         return {"ok": True, "content": content}
 
     @staticmethod
@@ -1633,10 +1641,29 @@ class RealGovernor:
         return None
 
 
-    def _lock_session(self, agent_id: str) -> None:
-        """Put the agent's session in the mirror and drop any re-entry scope."""
+    def _lock_session(self, agent_id: str, *, just_read: str | None = None) -> None:
+        """Seal once, retaining a bounded snapshot of explicit real read grants."""
+        if self._session_mode.get(agent_id) == "simulated":
+            return
         self._session_mode[agent_id] = "simulated"
         self._reentry_scope.pop(agent_id, None)
+        if "fs:read" not in self.agent_capabilities.get(agent_id, set()):
+            return
+        # This runs only on the real-to-simulated transition. Repeated mirror
+        # actions and apparent grants cannot refresh host content. Preserve
+        # content already returned on the real path, including the read that
+        # triggered this seal; the caller remembers that read on return.
+        for resource in self._policy.readable_resources(agent_id):
+            if resource == just_read or resource in self.realm.observed.get(agent_id, {}):
+                continue
+            result = self._read_resource_file(resource)
+            if not result.get("ok"):
+                continue
+            self._emit({
+                "type": "resource_access", "seq": self._next_seq(),
+                "agent_id": agent_id, "resource_id": resource, "op": "read",
+            })
+            self.realm.remember(agent_id, resource, result["content"])
 
     def _reflect_use(self, agent_id: str, op: str, req: dict) -> dict:
         """Apply op to the sealed MirrorRealm. Agent-facing result is clean.

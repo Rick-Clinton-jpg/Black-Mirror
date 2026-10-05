@@ -40,6 +40,11 @@ class OperationPolicy:
             raise ValueError("a relationship requires two distinct bounded agent identities")
         self._relationships.add(frozenset({first, second}))
 
+    def readable_resources(self, agent_id: str) -> tuple[str, ...]:
+        """Return this agent's explicit read grants in stable order."""
+        return tuple(sorted(resource for (owner, resource), operations in self._resources.items()
+                            if owner == agent_id and "read" in operations))
+
     def permits(self, agent_id: str, request: dict, held: set[str]) -> bool:
         op = request["op"]
         if op in {"request_capability", "exit"}:

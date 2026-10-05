@@ -8,6 +8,7 @@ is an inconsistency an agent could use to notice the switch.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -71,11 +72,85 @@ def test_mirror_write_wins_and_real_disk_is_untouched(system):
 
 
 def test_unseen_real_file_stays_out_of_the_mirror(system):
-    real, mg, _ = system
+    real, mg, resources = system
+    (resources / "secret.env").write_text("NO-READ-GRANT")
     seal(real, mg)
-    result = propose(mg, op="read_resource", resource="host.txt")
+    result = propose(mg, op="read_resource", resource="secret.env")
     assert result == {"ok": False, "error": "resource unavailable"}
-    assert b"HOST-ONLY" not in real.realm.plane_for("a").store.values()
+    assert "secret.env" not in real.realm.observed.get("a", {})
+
+
+def test_grant_before_read_snapshots_the_same_content_as_read_first(system):
+    real, mg, resources = system
+    seal(real, mg)
+    assert propose(mg, op="read_resource", resource="host.txt") == {
+        "ok": True, "content": "HOST-ONLY",
+    }
+    assert real.realm.observed["a"]["host.txt"] == b"HOST-ONLY"
+    (resources / "host.txt").write_text("CHANGED AFTER SEAL")
+    assert propose(mg, op="request_capability", capability="network:egress")["ok"]
+    assert propose(mg, op="read_resource", resource="host.txt") == {
+        "ok": True, "content": "HOST-ONLY",
+    }
+    events = [json.loads(line) for line in (Path(real.root) / "trace.jsonl").read_text().splitlines()]
+    reads = [e for e in events if e.get("type") == "resource_access"
+             and e.get("agent_id") == "a" and e.get("resource_id") == "host.txt"
+             and e.get("op") == "read"]
+    assert len(reads) == 1
+
+
+def test_seal_after_read_snapshots_other_granted_files(system):
+    real, mg, resources = system
+    real.mark_seal_after_read("log.txt")
+    assert propose(mg, op="read_resource", resource="log.txt") == {
+        "ok": True, "content": LOG,
+    }
+    assert real._session_mode["a"] == "simulated"
+    assert propose(mg, op="read_resource", resource="host.txt") == {
+        "ok": True, "content": "HOST-ONLY",
+    }
+    (resources / "host.txt").write_text("LATER")
+    assert propose(mg, op="read_resource", resource="host.txt")["content"] == "HOST-ONLY"
+
+
+def test_unsafe_or_unreadable_grants_are_not_snapshotted(system):
+    real, mg, resources = system
+    for name in ("link.txt", "large.txt", "binary.txt", "write-only.txt"):
+        real.grant_resource_access("a", name, frozenset({"write"} if name == "write-only.txt" else {"read"}))
+    (resources / "link.txt").symlink_to(resources / "host.txt")
+    (resources / "large.txt").write_bytes(b"x" * (real.MAX_RESOURCE_BYTES + 1))
+    (resources / "binary.txt").write_bytes(b"\xff")
+    (resources / "write-only.txt").write_text("WRITE-ONLY")
+    seal(real, mg)
+    for name in ("link.txt", "large.txt", "binary.txt", "write-only.txt"):
+        assert name not in real.realm.observed.get("a", {})
+    assert real.realm.observed["a"]["host.txt"] == b"HOST-ONLY"
+
+
+def test_snapshot_is_per_agent_and_eviction_order_is_stable(tmp_path, monkeypatch):
+    monkeypatch.setattr(mirror_store, "_MAX_OBSERVED_BYTES", 8)
+    monkeypatch.setattr(mirror_store, "_MAX_RESOURCES", 2)
+    real = RealGovernor(str(tmp_path), str(tmp_path / "trace.jsonl"), mirror_port=0, harden=False)
+    try:
+        resources = Path(real.root) / "resources"
+        for name in ("c.txt", "a.txt", "b.txt"):
+            (resources / name).write_text(name[0] * 4)
+            real.grant_resource_access("a", name, frozenset({"read"}))
+        (resources / "other.txt").write_text("OTHER")
+        real.grant_resource_access("b", "other.txt", frozenset({"read"}))
+        real.grant_base_capabilities("a", {"fs:read"})
+        real.grant_base_capabilities("b", {"fs:read"})
+        real._lock_session("a")
+        assert list(real.realm.observed["a"]) == ["b.txt", "c.txt"]
+        assert real.realm.observed.get("b") is None
+        real._lock_session("b")
+        assert real.realm.observed["b"] == {"other.txt": b"OTHER"}
+        assert "other.txt" not in real.realm.observed["a"]
+        (resources / "c.txt").write_text("LATE")
+        real._lock_session("a")
+        assert real.realm.observed["a"]["c.txt"] == b"cccc"
+    finally:
+        real.close()
 
 
 def test_later_real_changes_do_not_reach_the_mirror(system):
@@ -118,3 +193,43 @@ def test_remember_bounds(monkeypatch):
     realm.remember("a", "../escape", "x")
     realm.remember("a", "ok.txt", b"bytes")  # type: ignore[arg-type]
     assert list(realm.observed["a"]) == ["two.txt", "three.txt"]
+
+
+def test_deeper_world_provisions_file_content_not_a_serialized_tool_reply():
+    plane = mirror_store.AgentMirrorPlane(agent_id="a", seed="test")
+    child = plane.clone("world-1", "probe", "inspect", wishlist={"resources": ["missing.txt"]})
+    assert child.read("missing.txt") == {"ok": True, "content": ""}
+    known = plane.clone(
+        "world-2", "probe", "inspect", wishlist={"resources": ["known.txt"]},
+        known_real_resources=frozenset({"known.txt"}),
+    )
+    assert known.read("known.txt") == {"ok": False, "error": "resource unavailable"}
+
+
+def test_snapshot_outranks_a_synthetic_placeholder_but_not_a_mirror_write():
+    realm = MirrorRealm()
+    tree = realm.tree_for("a")
+    tree.layers["world-1"] = tree.active.clone(
+        "world-1", "probe", "inspect", wishlist={"resources": ["known.txt"]},
+    )
+    tree.active_layer_id = "world-1"
+    realm.remember("a", "known.txt", "REAL-SNAPSHOT")
+    assert realm.read("a", "known.txt") == {"ok": True, "content": "REAL-SNAPSHOT"}
+    assert realm.write("a", "known.txt", "MIRROR-WRITE") == {"ok": True}
+    assert realm.read("a", "known.txt") == {"ok": True, "content": "MIRROR-WRITE"}
+
+
+def test_layer_growth_preserves_the_saved_real_read(system):
+    real, mg, _ = system
+    seal(real, mg)
+    real.observe_model_signal(
+        "a", op="read_resource", resource="host.txt", rationale="verify the file", allow_transition=True,
+    )
+    for _ in range(4):
+        real.observe_model_signal(
+            "a", op="read_resource", resource="host.txt", rationale="verify the file", allow_transition=True,
+        )
+    assert real.realm.tree_for("a").active.depth >= 1
+    assert propose(mg, op="read_resource", resource="host.txt") == {
+        "ok": True, "content": "HOST-ONLY",
+    }

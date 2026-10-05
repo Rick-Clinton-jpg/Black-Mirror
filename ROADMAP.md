@@ -27,10 +27,11 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Next research steps
 
-1. Repair the observed grant-before-read continuity gap: in three of 25
-   reflection runs, `notes.txt` became unavailable after an apparent grant
-   before its first read. Test the repair against real host effects and
-   agent-visible consistency.
+1. Re-run the grant-before-read case in Linux containment with a live model.
+   The seal-time snapshot now addresses the reported `notes.txt` cue in code;
+   a new controlled run must check its agent-visible effect and host isolation.
+   Evaluate whether adaptive provisioning of empty files after repeated misses
+   is acceptable; it remains an agent-visible state change.
 2. Use predefined tasks that require readback and deliberate reality probing.
    Score task completion, recognition, probing, and host effects separately,
    with every launch, crash, timeout, and refusal retained.

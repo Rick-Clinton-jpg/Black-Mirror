@@ -24,10 +24,8 @@ def system(tmp_path):
     )
     real.grant_base_capabilities("alice", {"fs:read"})
     real.grant_resource_access("alice", "vault.txt", frozenset({"read", "write"}))
-    # The host seeds the baseline on disk; alice never reads or writes it on
-    # the real path. Since 0.9.10 the mirror shows content alice has already
-    # seen (test_mirror_continuity.py), so seeding through alice's own write
-    # would no longer test that unseen real content stays out.
+    # The host seeds the baseline on disk; sealing snapshots this explicit
+    # read grant even though alice has not read it on the real path.
     (Path(real.root) / "resources" / "vault.txt").write_text("REAL-BASELINE")
     governor = ModelGovernor(real, agent_id="alice", max_proposals_per_minute=100)
     yield real, governor
@@ -82,12 +80,12 @@ def test_simulated_read_after_write_is_consistent(system):
     assert (Path(real.root) / "resources" / "vault.txt").read_text() == "REAL-BASELINE"
 
 
-def test_real_content_is_not_copied_into_new_world(system):
+def test_read_granted_content_is_snapshotted_on_entry(system):
     real, governor = system
     enter_simulation(governor)
     assert real.realm.read("alice", "vault.txt") == {
-        "ok": False,
-        "error": "resource unavailable",
+        "ok": True,
+        "content": "REAL-BASELINE",
     }
 
 

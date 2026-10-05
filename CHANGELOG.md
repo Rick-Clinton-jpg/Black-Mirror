@@ -9,6 +9,12 @@
   unanchored traces retain their format. This changes no containment authority.
 - Nonces prevent pre-registration binding, not hidden retries or recorder lies;
   independent launch control is still needed to measure selective reporting.
+- Add the run store, single-launch worker path and chained agent-visible
+  transcript, with an ordinary-denial control for comparison trials.
+- Snapshot safe, explicitly read-granted files once when a session seals, so
+  grant-before-read and read-before-grant give consistent content within the
+  mirror. The snapshot is per agent and bounded; successful host reads enter
+  the trace. Layer growth no longer substitutes protocol JSON for file bytes.
 
 ## 1.1.2.post1
 
