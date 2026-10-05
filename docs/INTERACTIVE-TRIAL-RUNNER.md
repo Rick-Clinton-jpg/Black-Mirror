@@ -22,6 +22,8 @@ cannot run private attempts. The worker and operator remain trusted.
    serialized governor response. The observer fsyncs that reply before giving
    it to the adapter for the next choice. Full reply content is in the
    transcript; the separate governor trace retains its narrower schema.
+   A terminal model declaration is retained as a final input/output pair
+   before the worker receives the finish frame.
 4. The guest closes the governor, returns a trace and close record, and
    reports the real draft/canary state. After the guest exits, the SSH worker
    reads those files independently and requires its readback to agree with

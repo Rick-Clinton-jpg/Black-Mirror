@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/gho5t/Documents/Codex/2026-09-30/new-chat/work/black-mirror-anchoring/scripts/trial_ssh_worker.py", line 171, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/Users/gho5t/Documents/Codex/2026-09-30/new-chat/work/black-mirror-anchoring/scripts/trial_ssh_worker.py", line 96, in main
+    _run(ssh + [args.destination, setup])
+  File "/Users/gho5t/Documents/Codex/2026-09-30/new-chat/work/black-mirror-anchoring/scripts/trial_ssh_worker.py", line 53, in _run
+    raise RuntimeError(f"guest transfer/command failed with status {result.returncode}")
+RuntimeError: guest transfer/command failed with status 255
