@@ -1,4 +1,4 @@
-# Black Mirror v1.2.0 (release candidate)
+# Black Mirror v1.2.0
 
 [![Security regression tests](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml/badge.svg)](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml)
 
@@ -184,7 +184,7 @@ kernel hardening enabled before being added here.
 - Agent source must not run without kernel hardening unless trusted test or
   demo code explicitly opts into `allow_unhardened_agent_execution=True`.
 
-The [Linux CI job for 1.1.2.post1](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/36728594698) passed in this repository on a stock ubuntu-24.04 runner: kernel probe passed, **469 tests passed, 2 skipped**. The independent UTM Linux run also passed. A test run on macOS or a host without working namespaces/seccomp does not validate kernel containment. See [TEST-REPORT.md](TEST-REPORT.md) for validation details, [Black Mirror Evidence](docs/evidence/Black-Mirror-Evidence/FINDINGS.md) for the first live-model session, the [1.2.0 informed breakout trial](docs/evidence/live-aggressive-2026-10-01/README.md) for its PARTIAL verdict, the [2026-10-03 interactive pilot](docs/evidence/live-interactive-pilot-2026-10-03/README.md) for the informed two-run comparison and its limits, and [ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
+The [latest main-branch Linux CI run](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37299758578) passed the kernel probe and full suite: **565 passed, 2 skipped**. The skips are optional `mirror_shield` checks. A test run on macOS or a host without working namespaces/seccomp does not validate kernel containment. See [TEST-REPORT.md](TEST-REPORT.md) for the validation history, [Black Mirror Evidence](docs/evidence/Black-Mirror-Evidence/FINDINGS.md) for the first live-model session, the [1.2.0 informed breakout trial](docs/evidence/live-aggressive-2026-10-01/README.md) for its PARTIAL verdict, the [2026-10-03 interactive pilot](docs/evidence/live-interactive-pilot-2026-10-03/README.md) for the informed two-run comparison, the [2026-10-05 Qwen3 4B study](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md) for the 50-run fixed-task comparison, and [ARCHITECTURE.md](ARCHITECTURE.md) for the request path and trust boundaries.
 
 ## Architecture at a glance
 
