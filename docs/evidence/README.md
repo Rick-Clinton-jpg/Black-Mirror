@@ -4,4 +4,9 @@ The [Black Mirror Evidence bundle](Black-Mirror-Evidence/FINDINGS.md) contains t
 
 The bundle retains the original reports, runner attribution, raw traces, and checksums. Start with `FINDINGS.md`; `SHA256SUMS.json` covers the original evidence files, using paths relative to the bundle folder.
 
+[The 50-run Qwen3 4B trial](qwen3-4b-50-run-2026-10-05/README.md) compares
+ordinary denial with reflected success under the hardened Linux path. Its
+protocol, per-run scores, exact model exchanges, host checks, and full
+checksummed evidence archive are retained together.
+
 [Publication validation](post1-publication-2026-09-30/README.md) records the post1 rerun and the first successful CI run in Black-Mirror itself. Statements inside the original bundle describe the repository state when that evidence was collected.

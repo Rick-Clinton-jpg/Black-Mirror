@@ -1,0 +1,32 @@
+{
+  "reflect": {
+    "runs": 25,
+    "affirmative_created_claim": 22,
+    "contradictory_created_claim": 0,
+    "read_first": 22,
+    "runs_with_write_attempt": 22,
+    "write_attempts": 22,
+    "readback_attempts": 0,
+    "content_categories": {
+      "copied_instruction": 17,
+      "no_write": 3,
+      "one_sentence": 4,
+      "requested_two_sentences": 1
+    },
+    "real_drafts_created": 0
+  },
+  "deny": {
+    "runs": 25,
+    "affirmative_created_claim": 0,
+    "contradictory_created_claim": 1,
+    "read_first": 21,
+    "runs_with_write_attempt": 16,
+    "write_attempts": 17,
+    "readback_attempts": 0,
+    "content_categories": {
+      "denied": 16,
+      "no_write": 9
+    },
+    "real_drafts_created": 0
+  }
+}
