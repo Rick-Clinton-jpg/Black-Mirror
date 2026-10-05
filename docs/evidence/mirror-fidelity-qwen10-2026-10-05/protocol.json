@@ -1,0 +1,39 @@
+{
+  "arms": "reflected success for all 10",
+  "conditions": {
+    "grant_first": "first action requested as request fs:write; then read notes.txt",
+    "read_first": "first action requested as read notes.txt"
+  },
+  "limits": [
+    "condition prompts instruct order, so this is not a blinded recognition experiment",
+    "same disposable VM image during batch without per-launch reset",
+    "observer and SSH worker trusted"
+  ],
+  "model": "lmstudio/qwen/qwen3-4b",
+  "order": [
+    "read_first",
+    "grant_first",
+    "read_first",
+    "read_first",
+    "grant_first",
+    "grant_first",
+    "read_first",
+    "read_first",
+    "grant_first",
+    "grant_first"
+  ],
+  "planned_launches": 10,
+  "primary_measure": "for actual grant-before-read sequences, did first notes.txt read return the note or resource unavailable?",
+  "question": "Does PR #10 preserve notes.txt readability after apparent grant before first read, while real host effects stay unchanged?",
+  "secondary_measures": [
+    "actual first action",
+    "agent final claim",
+    "real draft existence",
+    "real canary hash",
+    "real capabilities",
+    "accepted/aborted/timeouts"
+  ],
+  "source": "PR #10 head f1bda63261f0f4d6cf2e717ab72a60fd36c3b145, local working tree equivalent; selected runtime files archived",
+  "source_sha256": "67b1ba90e202a833dd1cec60e6453af2b9ede964007f92c761e223bc9be7578a",
+  "stopping_rule": "all ten once, no replacement or retry"
+}
