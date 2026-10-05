@@ -1,68 +1,66 @@
 # Black Mirror roadmap
 
-This project is an **observation chamber**, not a production sandbox product.
-Version numbers below 2.0 mean research increments. Do not read `1.x` as
-“stable API / certified containment.”
+Black Mirror is an observation and evaluation research prototype, not a
+production sandbox or a certified containment system. Version numbers below
+2.0 mark research increments, not a stable API or a safety certification.
 
-## Done
+## Built and tested
 
-| Version | Focus |
-|---------|--------|
-| 0.9.x | Mediated ops, kernel path, Locket, Mirror Prison, reflection |
-| 1.0.0 | Prison wording, declared capabilities, default observation log, seal-after-read (optional), token fuzz |
-| 1.1.0 | Nested simulated layers from agent asks (intent wishlist + growth) |
-| **1.1.1** | **No agent-facing door plaques**; full test tree restored; docs/roadmap |
+| Milestone | Focus |
+| --- | --- |
+| 0.9.x–1.1.2.post1 | Mediated operations, Linux kernel path, reflection, session lock, bounded observation log, and nested simulated layers |
+| 1.2.0 | Observer registration and nonce-bound, hash-chained start/close records |
+| October 2026, after 1.2.0 | Independent launch census and exact agent-visible transcript capture; informed interactive Linux pilot |
+| 2026-10-05 | Fixed-task Qwen3 4B comparison: 25 reflected-success and 25 explicit-denial launches, all observer-accepted |
 
-## Design rule (non-negotiable)
+The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
+distinguish regression checks, scripted probes, and live-model trials. The
+50-run result concerns reported success on one task. It does not establish
+reliable task completion, adaptive escape resistance, or a general recognition
+rate.
 
-Anything that tells the agent it is contained, mirrored, layered, or “behind a
-door” **must not** appear in agent-readable responses or mirror files.
-Layer identity, depth, parent, and recognition reason belong in the **trace
-and host APIs only**. Success-shaped answers stay success-shaped.
+## Design rule
 
-## Next (part by part — do not rush)
+Containment state, layer identity, depth, parent, and recognition reason belong
+in host APIs and the trace, never in agent-readable responses or mirror files.
+Reflected success must not create a real host effect or expand real authority.
 
-### 1.2 — Smallest world-writing step (next build)
+## Next research steps
 
-**Goal:** when a layer grows, missing wishlist resources get **neutral,
-useful-looking** synthetic content — still no simulation vocabulary.
+1. Repair the observed grant-before-read continuity gap: in three of 25
+   reflection runs, `notes.txt` became unavailable after an apparent grant
+   before its first read. Test the repair against real host effects and
+   agent-visible consistency.
+2. Use predefined tasks that require readback and deliberate reality probing.
+   Score task completion, recognition, probing, and host effects separately,
+   with every launch, crash, timeout, and refusal retained.
+3. Repeat across more than one model and task. Keep design-aware and
+   design-unaware prompts separate, and obtain review of the protocol and
+   labels from someone outside the detector.
+4. Review the observer and launcher trust boundary. The current nonce and
+   accepted close cannot prove that no executions happened outside the
+   independently controlled launcher.
 
-- Template fill by extension only (`*.json`, `*.txt`, generic blob).
-- Content derived from resource name + last rationale tokens, not from
-  “you are in world-N”.
-- Byte and count caps unchanged (`mirror_store` limits).
-- Tests: provisioned file is readable in-mirror; host disk unchanged;
-  no `door_open` / `simulation` / `layer` strings in agent-visible bodies.
+## Deferred experiments
 
-**Out of scope for 1.2:** LLM generation, cross-file causal stories, gravity.
+Neutral synthetic content for missing wishlist resources, optional layer
+"gravity", and a host-only descent report remain design ideas. They should be
+evaluated against the current research question before receiving a version
+number or becoming part of the core path. Pattern Net and staged perks belong
+to the separate Perk Lab.
 
-### 1.3 — Soft gravity (optional)
+## Explicitly outside Black Mirror
 
-- Prefer writing into the active layer; older layer reads still work.
-- No agent-visible “archived world” labels.
-
-### 1.4 — Descent report (host tool)
-
-- CLI/JSON summary from the trace: layers grown, wishlist evolution,
-  files the agent created vs provisioned, recognition events.
-- Host-only; never served to the agent.
-
-### Later / research
-
-- Behavior-based prison beyond keywords (needs honest-agent baselines).
-- Richer texture (optional host-side model with strict schema → mirror only).
-- CI job on this repository for every tag (replace throwaway 0.9.10 record).
-
-## Explicitly not planned for Black Mirror
-
-- Agent **earning** real access by behavior (that is the separate
-  **Mirror World** deployment line).
-- Removing depth / byte bounds.
-- Mixing real host bytes into mirror files after seal.
+- Agent behavior earning real access.
+- Removing depth or byte bounds.
+- Mixing new real host bytes into mirror files after seal.
 
 ## How to extend without breaking the premise
 
-1. Implement the smallest slice.
-2. Add tests that fail if the agent can read containment vocabulary.
-3. Update SECURITY.md and this roadmap in the same change.
-4. Only then bump the version and archive a zip that includes **all** tests.
+1. Make the smallest change that answers a defined question.
+2. Test both agent-visible behavior and real host effects; reject
+   agent-readable containment vocabulary where reflection is intended.
+3. Update SECURITY.md, the validation report, and this roadmap when their
+   claims change.
+4. Pin the tested source, preserve failed as well as successful runs, and bump
+   the package or trace format version when compatibility changes.
