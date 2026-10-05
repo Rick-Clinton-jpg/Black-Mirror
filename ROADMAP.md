@@ -44,9 +44,9 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Deferred experiments
 
-Neutral synthetic content for missing wishlist resources, optional layer
-"gravity", and a host-only descent report remain design ideas. They should be
-evaluated against the current research question before receiving a version
+Changing when missing wishlist resources are provisioned, optional layer
+"gravity", and a host-only descent report remain design ideas. They should
+be evaluated against the current research question before receiving a version
 number or becoming part of the core path. Pattern Net and staged perks belong
 to the separate Perk Lab.
 
