@@ -1,0 +1,9 @@
+UTM guest: Containtment-Zone
+Linux containtmentzone 7.0.0-34-generic #34-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:34:54 UTC 2026 aarch64 GNU/Linux
+Python 3.14.4
+Source commit: 4cbe47f01cac1a9415e23bd40129167b33373ade
+Source archive SHA-256: ccd6238b5c5b089442feb59ec26dc183f3453d4623c1211e2c2f933ced14c477
+Kernel probe: exit 0; mirror-kernel-ready
+Guest worker: RealGovernor(harden=True), checked kernel availability before each launch
+Model: local LM Studio qwen/qwen3-4b; provider model ID checked on every response
+VM boot: utmctl start --disposable returned OSStatus -10004; opening UTM started the VM. Disposable/snapshot status could not be confirmed. No per-launch reset occurred.
