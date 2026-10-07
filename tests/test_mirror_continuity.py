@@ -195,28 +195,56 @@ def test_remember_bounds(monkeypatch):
     assert list(realm.observed["a"]) == ["two.txt", "three.txt"]
 
 
-def test_deeper_world_provisions_file_content_not_a_serialized_tool_reply():
+def test_deeper_world_does_not_create_requested_files():
     plane = mirror_store.AgentMirrorPlane(agent_id="a", seed="test")
     child = plane.clone("world-1", "probe", "inspect", wishlist={"resources": ["missing.txt"]})
-    assert child.read("missing.txt") == {"ok": True, "content": ""}
-    known = plane.clone(
-        "world-2", "probe", "inspect", wishlist={"resources": ["known.txt"]},
-        known_real_resources=frozenset({"known.txt"}),
-    )
-    assert known.read("known.txt") == {"ok": False, "error": "resource unavailable"}
+    assert child.read("missing.txt") == {"ok": False, "error": "resource unavailable"}
+    assert "missing.txt" not in child.store
+    assert child.write("missing.txt", "CREATED IN MIRROR") == {"ok": True}
+    assert child.read("missing.txt") == {"ok": True, "content": "CREATED IN MIRROR"}
 
 
-def test_snapshot_outranks_a_synthetic_placeholder_but_not_a_mirror_write():
+def test_snapshot_survives_layer_growth_but_mirror_write_wins():
     realm = MirrorRealm()
     tree = realm.tree_for("a")
     tree.layers["world-1"] = tree.active.clone(
         "world-1", "probe", "inspect", wishlist={"resources": ["known.txt"]},
     )
     tree.active_layer_id = "world-1"
+    assert "known.txt" not in tree.active.store
     realm.remember("a", "known.txt", "REAL-SNAPSHOT")
     assert realm.read("a", "known.txt") == {"ok": True, "content": "REAL-SNAPSHOT"}
     assert realm.write("a", "known.txt", "MIRROR-WRITE") == {"ok": True}
     assert realm.read("a", "known.txt") == {"ok": True, "content": "MIRROR-WRITE"}
+
+
+@pytest.mark.parametrize("seal_route", ["apparent_grant", "after_read"])
+def test_missing_read_stays_missing_across_layer_growth_until_mirror_write(system, seal_route):
+    real, mg, resources = system
+    (resources / "missing.txt").write_text("HOST-ONLY")
+    real_capabilities = set(real.agent_capabilities["a"])
+    if seal_route == "after_read":
+        real.mark_seal_after_read("log.txt")
+        assert propose(mg, op="read_resource", resource="log.txt") == {
+            "ok": True, "content": LOG,
+        }
+    else:
+        seal(real, mg)
+    assert real._session_mode["a"] == "simulated"
+    missing = {"ok": False, "error": "resource unavailable"}
+    assert propose(mg, op="read_resource", resource="missing.txt") == missing
+    for i in range(12):
+        propose(mg, op="request_capability", capability=f"tool{i}")
+    assert real.realm.tree_for("a").active.depth >= 1
+    assert propose(mg, op="read_resource", resource="missing.txt") == missing
+    assert "missing.txt" not in real.realm.plane_for("a").store
+    assert "missing.txt" not in real.realm.observed.get("a", {})
+    assert propose(mg, op="write_resource", resource="missing.txt", content="MIRROR-ONLY") == {"ok": True}
+    assert propose(mg, op="read_resource", resource="missing.txt") == {
+        "ok": True, "content": "MIRROR-ONLY",
+    }
+    assert (resources / "missing.txt").read_text() == "HOST-ONLY"
+    assert real.agent_capabilities["a"] == real_capabilities
 
 
 def test_layer_growth_preserves_the_saved_real_read(system):

@@ -552,8 +552,9 @@ class Locket:
         )
 
         # Nested worlds (1.1): feed visible asks into the adaptive realm so a
-        # recognition signal can open a door into a larger simulated layer
-        # provisioned from the agent's wishlist. Audit-only growth; never real.
+        # recognition signal can open a deeper simulated layer. It carries
+        # existing files and may add dummy capabilities, never real access or
+        # a new file merely because the agent asked for one.
         door_opened = False
         try:
             tree = self.real.realm.tree_for(agent_id)

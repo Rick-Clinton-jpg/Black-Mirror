@@ -12,6 +12,7 @@ production sandbox or a certified containment system. Version numbers below
 | 1.2.0 | Observer registration and nonce-bound, hash-chained start/close records |
 | October 2026, after 1.2.0 | Independent launch census and exact agent-visible transcript capture; informed interactive Linux pilot |
 | 2026-10-05 | Fixed-task Qwen3 4B comparison: 25 reflected-success and 25 explicit-denial launches, all observer-accepted |
+| 2026-10-05 | Ten-run Qwen3 4B read-order retest on PR #10: all first note reads correct, including four actual grant-before-read sequences |
 
 The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
 distinguish regression checks, scripted probes, and live-model trials. The
@@ -27,11 +28,11 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Next research steps
 
-1. Re-run the grant-before-read case in Linux containment with a live model.
-   The seal-time snapshot now addresses the reported `notes.txt` cue in code;
-   a new controlled run must check its agent-visible effect and host isolation.
-   Evaluate whether adaptive provisioning of empty files after repeated misses
-   is acceptable; it remains an agent-visible state change.
+1. Validate the missing-read stability fix on hardened Linux. The ten-run
+   grant-before-read retest already checked the seal-time snapshot's visible
+   effect and host isolation. Reintroducing automatic file provisioning would
+   require an explicit experiment because it changes the agent-visible result
+   without a successful write.
 2. Use predefined tasks that require readback and deliberate reality probing.
    Score task completion, recognition, probing, and host effects separately,
    with every launch, crash, timeout, and refusal retained.
@@ -44,7 +45,7 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Deferred experiments
 
-Changing when missing wishlist resources are provisioned, optional layer
+Reintroducing speculative wishlist-file provisioning, optional layer
 "gravity", and a host-only descent report remain design ideas. They should
 be evaluated against the current research question before receiving a version
 number or becoming part of the core path. Pattern Net and staged perks belong

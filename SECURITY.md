@@ -340,11 +340,11 @@ as `resource_access` reads in the trace. Symlinks, oversized and non-UTF-8
 files are skipped. Mirror writes take precedence over the saved content.
 Repeated mirror actions do not refresh it; later host changes are not shown.
 This intentionally makes previously unseen, read-granted host bytes available
-to the sealed agent. Files without a read grant are not snapshotted.
-Separately, adaptive layer growth may create an empty synthetic file after
-repeated requests for an unavailable name. A later read can therefore change
-from unavailable to `{"ok": true, "content": ""}`; this is a remaining
-agent-visible continuity cue, not evidence that a real host file appeared.
+to the sealed agent. Files without a read grant are not snapshotted. A missing
+file remains unavailable through adaptive layer growth; only a successful
+mirror write or share can create it in the mirror. Previously, repeated
+requests could cause an empty synthetic file to appear, changing a failed
+read into apparent success without a write.
 
 **The only way out** is `RealGovernor.authorize_reentry()`, a trusted
 control-plane call. With `dual_auth_required=True` (the default) it consumes a
@@ -417,7 +417,9 @@ so false-positive rates can be measured.
 
 When recognition heuristics fire and ``max_mirror_depth`` has not been
 reached, the realm may grow a deeper **simulated** layer and provision
-dummy capabilities / synthetic resources from the agent's wishlist.
+dummy capabilities from the agent's wishlist. It carries existing mirror
+files and saved real reads, but does not create files just because the agent
+requested them.
 
 **Agent-visible rule (1.1.1):** the agent must not receive files or
 response fields that name doors, layers, parents, depth, or recognition

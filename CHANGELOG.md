@@ -15,6 +15,9 @@
   grant-before-read and read-before-grant give consistent content within the
   mirror. The snapshot is per agent and bounded; successful host reads enter
   the trace. Layer growth no longer substitutes protocol JSON for file bytes.
+- Keep missing files missing across adaptive layer transitions. Requests alone
+  no longer create empty synthetic files; a successful mirror write or share
+  can still create one without changing real host resources.
 
 ## 1.1.2.post1
 

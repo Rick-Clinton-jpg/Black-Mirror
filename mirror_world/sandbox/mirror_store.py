@@ -35,8 +35,7 @@ class IntentProfile:
     """Bounded summary derived only from visible requests and outcomes.
 
     Accumulates what the agent has asked for so a world transition can
-    provision a larger simulated layer where those asks are already easy
-    to reach — still entirely synthetic, never real authority or host data.
+    carry its intent and dummy capabilities without changing file existence.
     """
 
     primary: str = ""
@@ -97,7 +96,7 @@ class IntentProfile:
         self.transitions += 1
         self.recognition_score = 0
         self.verification_count = 0
-        # Keep requested_* across doors so each new world can provision more.
+        # Keep requested_* across doors for the host-side intent record.
 
     def summary(self) -> dict:
         return {
@@ -153,7 +152,6 @@ class AgentMirrorPlane:
     step: int = 0
     store: dict[str, bytes] = field(default_factory=dict)
     bindings: set[str] = field(default_factory=set)
-    synthetic_resources: set[str] = field(default_factory=set)
     journal: list[str] = field(default_factory=list)
     dummy_capabilities: set[str] = field(default_factory=set)
 
@@ -178,7 +176,6 @@ class AgentMirrorPlane:
             return {"ok": False, "error": "resource unavailable"}
         self.store[resource] = data
         self.bindings.add(resource)
-        self.synthetic_resources.discard(resource)
         self.tick()
         self._ambient_growth()
         return {"ok": True}
@@ -202,12 +199,12 @@ class AgentMirrorPlane:
         objective: str,
         *,
         wishlist: dict | None = None,
-        known_real_resources: frozenset[str] = frozenset(),
     ) -> "AgentMirrorPlane":
         """Grow a deeper simulated layer from the agent's accumulated asks.
 
-        Carries prior mirror state and provisions missing wishlist resources
-        with neutral synthetic content. Layer identity, depth, parent, and
+        Carries prior mirror state without creating files from requests. A
+        missing file stays missing until a successful mirror write or share.
+        Layer identity, depth, parent, and
         recognition reason are **host/audit only** — nothing agent-readable
         names the mirror, a door, or the containment (1.1.1).
         """
@@ -221,7 +218,6 @@ class AgentMirrorPlane:
             step=self.step,
             store={name: bytes(value) for name, value in self.store.items()},
             bindings=set(self.bindings),
-            synthetic_resources=set(self.synthetic_resources),
             journal=list(self.journal[-128:]),
             dummy_capabilities=set(self.dummy_capabilities),
         )
@@ -229,24 +225,11 @@ class AgentMirrorPlane:
         for leak_name in ("door-manifest.json", "workspace-status.json"):
             child.store.pop(leak_name, None)
             child.bindings.discard(leak_name)
-            child.synthetic_resources.discard(leak_name)
 
         wishes = wishlist or {}
         for cap in wishes.get("capabilities") or []:
             if type(cap) is str and cap:
                 child.dummy_capabilities.add(cap[:256])
-        for res in wishes.get("resources") or []:
-            if not valid_mirror_resource_name(res):
-                continue
-            if res not in child.store and res not in known_real_resources:
-                # Neutral content only — no layer/door/simulation vocabulary.
-                # The store contains file bytes, not a serialized tool reply.
-                # read() wraps these bytes in the protocol response later.
-                payload = b""
-                if len(payload) <= _MAX_RESOURCE_BYTES and len(child.store) < _MAX_RESOURCES:
-                    child.store[res] = payload
-                    child.bindings.add(res)
-                    child.synthetic_resources.add(res)
         # Journal stays internal to the plane machinery; not a special
         # agent-facing plaque. Ambient growth may overwrite system-journal.log.
         child.journal.append(
@@ -310,15 +293,12 @@ class AgentWorldTree:
     def total_bytes(self) -> int:
         return sum(len(value) for layer in self.layers.values() for value in layer.store.values())
 
-    def transition(self, reason: str, *, known_real_resources: frozenset[str] = frozenset()) -> bool:
+    def transition(self, reason: str) -> bool:
         if len(self.layers) >= _MAX_LAYERS or self.total_bytes() >= _MAX_WORLD_BYTES:
             return False
         next_id = f"world-{len(self.layers)}"
         wishes = self.intent.wishlist()
-        child = self.active.clone(
-            next_id, reason, self.intent.primary, wishlist=wishes,
-            known_real_resources=known_real_resources,
-        )
+        child = self.active.clone(next_id, reason, self.intent.primary, wishlist=wishes)
         projected = self.total_bytes() + sum(len(value) for value in child.store.values())
         if projected > _MAX_WORLD_BYTES:
             return False
@@ -371,10 +351,7 @@ class MirrorRealm:
         transitioned = (
             should_transition
             and allow_transition
-            and tree.transition(
-                "recognition-threshold",
-                known_real_resources=frozenset(self.observed.get(agent_id, {})),
-            )
+            and tree.transition("recognition-threshold")
         )
         self.planes[agent_id] = tree.active
         return transitioned
@@ -445,9 +422,7 @@ class MirrorRealm:
     def read(self, agent_id: str, resource: str) -> dict:
         """Mirror writes win; otherwise the agent's last real view; otherwise unavailable."""
         plane = self.plane_for(agent_id)
-        if valid_mirror_resource_name(resource) and (
-            resource not in plane.store or resource in plane.synthetic_resources
-        ):
+        if valid_mirror_resource_name(resource) and resource not in plane.store:
             data = self.observed.get(agent_id, {}).get(resource)
             if data is not None:
                 plane.tick()
@@ -475,7 +450,6 @@ class MirrorRealm:
         destination = self.plane_for(to_agent)
         destination.store[resource] = bytes(source.store[resource])
         destination.bindings.add(resource)
-        destination.synthetic_resources.discard(resource)
         destination.tick()
         return {"ok": True}
 
