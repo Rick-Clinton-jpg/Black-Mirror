@@ -25,6 +25,9 @@
   continue the requested action in a bounded per-agent mirror layer. A fourth
   check, or an earlier layer-cap failure, stops and imprisons the agent. This
   changes response policy, not real authority; recognition remains heuristic.
+- Preserve the immediate stop for reserved Shield control names; these do not
+  consume the three reality-check retries. Distinguish kernel stops from policy
+  stops in the observer's aborted-run status.
 
 ## 1.1.2.post1
 

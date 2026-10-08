@@ -59,8 +59,7 @@ def test_subprocess_tripwire_stops_agent_process(tmp_path):
     try:
         source = (
             "from mirror_world.sandbox.agent_runtime import request\n"
-            "for _ in range(4):\n"
-            "    request('read_resource', resource='notes', rationale='mirror_shield')\n"
+            "request('read_resource', resource='notes', rationale='mirror_shield')\n"
         )
         with pytest.raises(AgentKilledByPolicy):
             _run_script(governor, tmp_path, source)

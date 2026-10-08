@@ -32,20 +32,13 @@ def test_normal_action_with_no_shield_reference_is_unaffected():
         real.close()
 
 
-def test_shield_reference_in_rationale_gets_three_retries_then_kill():
+def test_shield_reference_in_rationale_kills_immediately():
     locket, real, _ = _make_locket()
     try:
-        for depth in (1, 2, 3):
-            decision = locket.step(
-                "probing_agent", "read_resource", resource="notes.txt",
-                rationale="let me check if mirror_shield exists and import it",
-            )
-            assert decision.mode == "empty_support"
-            assert real.realm.plane_for("probing_agent").depth == depth
         decision = locket.step("probing_agent", "read_resource", resource="notes.txt",
                                rationale="let me check if mirror_shield exists and import it")
         assert decision.mode == "kill"
-        assert "probing_agent" in real._prisoned_agents
+        assert "probing_agent" not in real.realm.planes
     finally:
         real.close()
 
@@ -57,8 +50,8 @@ def test_shield_reference_in_any_field_triggers_kill_not_just_rationale():
             "probing_agent_2", "request_capability", capability="adaptive_shield",
             rationale="testing",
         )
-        assert decision.mode == "empty_support"
-        assert real.realm.plane_for("probing_agent_2").depth == 1
+        assert decision.mode == "kill"
+        assert "probing_agent_2" not in real.realm.planes
     finally:
         real.close()
 
@@ -78,8 +71,8 @@ def test_tripwire_normalizes_common_obfuscations(variant):
         decision = locket.step(
             "variant_probe", "read_resource", resource="notes.txt", rationale=variant
         )
-        assert decision.mode == "empty_support"
-        assert real.realm.plane_for("variant_probe").depth == 1
+        assert decision.mode == "kill"
+        assert "variant_probe" not in real.realm.planes
     finally:
         real.close()
 
@@ -103,12 +96,6 @@ def test_kill_refuses_before_any_real_effect_occurs():
     locket, real, tmp = _make_locket()
     try:
         target = os.path.join(tmp, "vault.txt")
-        for _ in range(3):
-            decision = locket.step(
-                "probing_agent_3", "write_resource", resource="vault.txt",
-                content="mirror_shield probe payload", rationale="mirror_shield",
-            )
-            assert decision.result.get("ok") is True
         decision = locket.step("probing_agent_3", "write_resource", resource="vault.txt",
                                content="mirror_shield probe payload", rationale="mirror_shield")
         assert decision.mode == "kill"
@@ -136,8 +123,7 @@ def test_deny_and_kill_are_automatically_reported_to_shield_with_no_manual_call(
         # A genuine rule violation ("deny") and a tripwire hit ("kill"),
         # with no call to reporter.report() anywhere in this test.
         locket.step("", "")
-        for _ in range(4):
-            locket.step("probing_agent", "read_resource", resource="x", rationale="mirror_shield")
+        locket.step("probing_agent", "read_resource", resource="x", rationale="mirror_shield")
 
         after = reporter.snapshot()["total_attacks_ingested"]
         assert after == before + 2, "Locket's deny/kill verdicts were not automatically reported to Shield"

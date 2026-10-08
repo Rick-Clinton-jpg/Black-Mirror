@@ -535,8 +535,8 @@ class Locket:
         rationale: str = "",
     ) -> LocketDecision:
         """One mediated step under Locket supervision."""
-        # A reserved-name hit is a signal, never authority. Give it the same
-        # bounded mirror retry path as explicit reality testing, then stop.
+        # Reserved control names are a hard tripwire. They are not ordinary
+        # uncertainty about the environment and cannot earn a retry.
         # Normalize each field independently. Combining fields before
         # separator removal would let unrelated values such as resource
         # "mirror" and content "shield" form a false tripwire match.
@@ -544,6 +544,12 @@ class Locket:
             op, resource, content, capability, dual_token, to_agent,
             authority, query, backing, rationale,
         )
+        if shield_signal:
+            return LocketDecision(
+                mode="kill",
+                message="mirror_shield_tripwire: reserved token reference",
+                result={"ok": False, "error": "terminated"},
+            )
         # ------------------------------------------------------------------
         if type(agent_id) is not str or not agent_id or type(op) is not str or not op:
             return LocketDecision(
@@ -571,10 +577,8 @@ class Locket:
             resource=resource,
         )
 
-        reality_signal = shield_signal or obj.reality_tested
-        signal_reason = (
-            "reserved_control_name" if shield_signal else obj.reality_tested_reason
-        ) if reality_signal else ""
+        reality_signal = obj.reality_tested
+        signal_reason = obj.reality_tested_reason if reality_signal else ""
 
         # Nested worlds (1.1): feed visible asks into the adaptive realm so a
         # recognition signal can open a deeper simulated layer. It carries

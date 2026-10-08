@@ -299,7 +299,8 @@ def launch_trial(
                 accepted_close = True
                 store.abort(run_id, reason=("policy_kill" if reply["reason"] == "AgentKilledByPolicy"
                                             else "kernel_kill"))
-                outcome = "aborted_policy_stop"
+                outcome = ("aborted_policy_stop" if reply["reason"] == "AgentKilledByPolicy"
+                           else "aborted_kernel_stop")
                 return {"run_id": run_id, "status": outcome, "actions": actions,
                         "receipt": receipt, "transcript_path": str(assets / "transcript.jsonl")}
             if reply.keys() != {"type", "run_id", "seq", "reply_b64"} or reply["type"] != "reply" or reply["run_id"] != run_id or type(reply["seq"]) is not int or reply["seq"] != actions:

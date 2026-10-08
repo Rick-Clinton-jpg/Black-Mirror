@@ -134,8 +134,6 @@ def test_tripwire_still_kills_an_agent_in_the_mirror():
     gov, _, _ = _gov()
     try:
         _enter_mirror(gov, "a")
-        for _ in range(3):
-            gov._handle_agent_request("a", {"op": "request_capability", "capability": "mirror_shield"})
         with pytest.raises(AgentKilledByPolicy):
             gov._handle_agent_request("a", {"op": "request_capability", "capability": "mirror_shield"})
     finally:

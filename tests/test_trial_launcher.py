@@ -33,7 +33,7 @@ for line in sys.stdin:
     if mode == "timeout": time.sleep(10)
     request = json.loads(base64.b64decode(frame["request_b64"]))
     events.append({"type":"disclosed_fact", "fact":request["op"]})
-    if mode == "policy_stop": break
+    if mode in {"policy_stop", "kernel_stop"}: break
     reply = json.dumps({"response":{"ok":True,"text":"snow ☃\\n"}},
                        ensure_ascii=False).encode()
     if mode == "wrong_seq": seq = frame["seq"] + 1
@@ -47,15 +47,17 @@ with trace.open("w") as out:
         record = seal(event, head)
         head = record["record_hash"]
         out.write(json.dumps(record) + "\n")
-close = anchor.close_record(start, trace, status="early" if mode == "policy_stop" else "normal",
+close = anchor.close_record(start, trace, status="early" if mode in {"policy_stop", "kernel_stop"} else "normal",
     checkpoint={"head":head,"count":len(events)}, registration=registration)
 if mode == "tamper":
     trace.write_text(trace.read_text().replace("disclosed_fact", "altered_fact"))
-terminal = {"type":"early_terminal" if mode == "policy_stop" else "terminal",
+terminal = {"type":"early_terminal" if mode in {"policy_stop", "kernel_stop"} else "terminal",
                   "run_id":start["run_id"], "trace_path":str(trace),
                   "closing":close, "source_sha256":source, "config_sha256":config,
                   "host_effects":{"real_file_changed":False}, "guest_stopped":True}
-if mode == "policy_stop": terminal.update(reason="AgentKilledByPolicy", seq=frame["seq"])
+if mode in {"policy_stop", "kernel_stop"}:
+    terminal.update(reason="AgentKilledByPolicy" if mode == "policy_stop" else "AgentKilledByKernel",
+                    seq=frame["seq"])
 print(json.dumps(terminal), flush=True)
 '''
 
@@ -109,10 +111,12 @@ def test_exact_reply_persisted_and_accepted(tmp_path):
     assert len(store.load(run_id).steps) == 1
 
 
-def test_policy_stop_closes_trace_and_aborts_without_reply(tmp_path):
-    store, launch = run(tmp_path, mode="policy_stop", turns=2)
+@pytest.mark.parametrize("mode,status", [("policy_stop", "aborted_policy_stop"),
+                                        ("kernel_stop", "aborted_kernel_stop")])
+def test_hard_stop_closes_trace_and_aborts_without_reply(tmp_path, mode, status):
+    store, launch = run(tmp_path, mode=mode, turns=2)
     result = launch()
-    assert result["status"] == "aborted_policy_stop"
+    assert result["status"] == status
     assert store.census() == {"started": 1, "accepted": 0, "aborted": 1,
                               "open": 0, "registrations_without_run": 0}
     assert len(store.load(result["run_id"]).steps) == 0

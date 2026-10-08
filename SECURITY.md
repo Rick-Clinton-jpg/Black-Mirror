@@ -180,7 +180,7 @@ even if an agent recognizes a reflection.
 
 ## Mirror Prison
 
-Each recognized self-containment check or reserved control-name reference
+Each recognized self-containment check
 opens one fresh per-agent mirror layer, for at most three signals. The triggering
 action is handled in that layer after the session is sealed; it cannot use a
 real write or approval token. The reply has the ordinary shape for that
@@ -201,6 +201,10 @@ retry, layer transition and terminal denial. Later Mirror Prison denials have
 their own trace events. The request event contains operation, resource,
 capability, and rationale, but omits write content and approval tokens. Deployments must
 control who can call `reset_mirror_prison()`.
+
+A reserved Shield control-name reference is still an immediate policy stop,
+without a mirror retry. It is a separate tripwire, not an expression of
+ordinary doubt about the environment.
 
 Before 0.9.8 one agent's trigger shut down every agent, permanently, with no
 reset: a single line of untrusted input could deny service to the whole

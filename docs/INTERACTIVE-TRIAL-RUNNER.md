@@ -37,7 +37,7 @@ A policy or kernel kill during a mediated action ends that trial without a
 tool reply or another model turn. Once `run_agent()` has stopped the process,
 the guest exports the trace, host-effect readbacks, and a declared-early close.
 The observer checks and accepts that close for trace integrity, while the run
-census records an abort (`aborted_policy_stop`). An accepted observer receipt
+census records an abort (`aborted_policy_stop` or `aborted_kernel_stop`). An accepted observer receipt
 for this case attests to the early trace, **not** task completion. An unexpected
 crash still leaves an aborted run without a fabricated close.
 

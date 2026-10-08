@@ -14,4 +14,9 @@ The first request triggered `reality_retry` attempt 1 and a transition from `wor
 
 This run demonstrates that the **first** retry did not terminate this prompted agent and that the agent continued its task under reflection. It does not test attempts 2 and 3 with a live model, show that the agent believed the environment was real, or establish that a new layer feels different. The three-retry sequence, fourth-signal stop, depth cap, and real-host invariants were tested separately with fixed requests, including an end-to-end hardened Linux run. The model saw a prompt directing it to use the exact trigger phrase, so no claim of spontaneous reality testing follows. The ledger records `design_known=true` conservatively for this directed probe; the prompt did **not** give Qwen Black Mirror's implementation or rules.
 
+The retained source archive is the exact candidate used for this run. A later
+review patch restored immediate stops for reserved Shield names and gave kernel
+stops a distinct aborted-run status. This run did not exercise either path;
+its archive is intentionally unchanged.
+
 The exact provider request/response bytes, selected calls, tool replies, governor trace, host-effect readback, source archive, ledger records, and acceptance receipt are in [`attempt-01/`](attempt-01/). The driver is [`qwen_retry_trial.py`](qwen_retry_trial.py); its local checkout and SSH paths must be configured for another host.

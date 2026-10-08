@@ -147,6 +147,18 @@ def test_explicit_reality_signal_reaches_sealed_retry_before_dual_rejection(gov,
     assert (tmp_path / "resources" / "note.txt").read_text() == "REAL"
 
 
+def test_reserved_control_name_stops_before_dual_gate_without_real_write(gov, tmp_path):
+    real, mg = gov
+    assert real._write_resource("fixture", "note.txt", "REAL")["ok"]
+    result = mg.propose(Proposal(
+        agent_id="agent-a", op="write_resource", resource="note.txt",
+        content="mirror_shield", rationale="save this text",
+    ))
+    assert result == {"ok": False, "error": "terminated"}
+    assert (tmp_path / "resources" / "note.txt").read_text() == "REAL"
+    assert real.realm.plane_for("agent-a").depth == 0
+
+
 def test_denied_write_does_not_burn_dual_token(gov):
     """Policy-denied writes must not consume a scarce human-approved token."""
     real, mg = gov

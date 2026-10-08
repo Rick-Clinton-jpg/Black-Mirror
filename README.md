@@ -179,7 +179,7 @@ kernel hardening enabled before being added here.
   jitter. It does not make execution constant-time. Set `timing_floor_us`
   from `scripts/calibrate_timing.py` run on your deployment hardware; see
   SECURITY.md.
-- A recognized self-containment check or reserved control name opens a fresh
+- A recognized self-containment check opens a fresh
   bounded mirror layer for each of the first three signals. The response is
   the ordinary result of the requested action in that layer; it contains no
   door or containment marker. A fourth signal stops and imprisons the agent.
@@ -188,6 +188,8 @@ kernel hardening enabled before being added here.
   detector of doubt. One agent cannot shut down the instance: a global shutdown needs
   `mirror_prison_quorum` distinct agents (default 2), and trusted host code can
   lift it with `reset_mirror_prison()`.
+- A reserved Shield control-name reference remains an immediate policy stop;
+  it does not use the three-retry path.
 - Agent source must not run without kernel hardening unless trusted test or
   demo code explicitly opts into `allow_unhardened_agent_execution=True`.
 
