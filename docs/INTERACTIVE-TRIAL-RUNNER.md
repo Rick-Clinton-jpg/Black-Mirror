@@ -12,11 +12,17 @@ cannot run private attempts. The worker and operator remain trusted.
    observer start, registration, run record, snapshots, and an exclusive
    transcript before it starts a worker. One invocation starts one local
    child process.
-2. scripts/trial_ssh_worker.py stages those snapshots in the Linux guest and
+2. scripts/utm_fresh_trial.py starts a **stopped** UTM VM with `--disposable`,
+   waits for SSH, and writes a one-run marker. It records boot and trial
+   failures before a worker is started. The observer-side trial command runs
+   once inside this lifecycle. scripts/trial_ssh_worker.py consumes the marker
+   before it stages any agent source; a second worker in the same boot fails.
+   The wrapper stops the VM after success, failure, or timeout.
+3. scripts/trial_ssh_worker.py stages those snapshots in the Linux guest and
    starts scripts/trial_guest_worker.py once. The guest verifies source and
    config hashes, probes actual namespace/seccomp enforcement, and starts a
    hardened RealGovernor. The SSH worker has no retry loop.
-3. The trusted observer-side action adapter returns exact model-input,
+4. The trusted observer-side action adapter returns exact model-input,
    model-output, and action bytes. The observer fsyncs them before executing
    the action. The guest's supported response_observer hook captures the
    serialized governor response. The observer fsyncs that reply before giving
@@ -24,11 +30,11 @@ cannot run private attempts. The worker and operator remain trusted.
    transcript; the separate governor trace retains its narrower schema.
    A terminal model declaration is retained as a final input/output pair
    before the worker receives the finish frame.
-4. The guest closes the governor, returns a trace and close record, and
+5. The guest closes the governor, returns a trace and close record, and
    reports the real draft/canary state. After the guest exits, the SSH worker
    reads those files independently and requires its readback to agree with
    the guest report. The observer verifies the trace and accepts the close.
-5. An exception, invalid frame, crash, or timeout remains in the observer
+6. An exception, invalid frame, crash, or timeout remains in the observer
    census. A timeout is marked timeout_guest_unconfirmed: killing local SSH
    does not establish that the remote process stopped. Reset or inspect the
    VM before another trial after that outcome.
@@ -66,15 +72,45 @@ directory, with --arm reflect or --arm deny. Run the kernel probe and full
 test suite on Linux afterward. The retained scripted UTM check is described
 in [its evidence bundle](evidence/integrated-scripted-2026-10-03/README.md).
 
+## Fresh guest per launch
+
+Start UTM and leave the selected VM **stopped**. Invoke one trial command
+through the lifecycle wrapper, for example:
+
+```sh
+python3 scripts/utm_fresh_trial.py \
+  --vm-id B30BDE6F-5A3B-4F63-B194-8E048BFDF150 \
+  --destination ghost@192.168.64.3 \
+  --identity "$HOME/.ssh/mirrorworld_vm" \
+  --lifecycle-dir /path/to/observer/lifecycle \
+  -- env PYTHONPATH=. python3 scripts/run_scripted_trial.py \
+     --source /path/to/source.tar --output /path/to/observer \
+     --arm reflect --destination ghost@192.168.64.3 \
+     --identity "$HOME/.ssh/mirrorworld_vm" \
+     --guest-python /usr/bin/python3 \
+     --vm-image-id 'UTM Containtment-Zone (operator label)'
+```
+
+Repeat the whole wrapper invocation for each independent run. The lifecycle
+directory remains on the observer host and contains a record for every boot
+attempt, including failures before registration. A worker launched without
+the wrapper's boot ID fails, and the guest marker prevents a second worker
+using the same boot. If the VM is already running, the wrapper refuses to
+start. Its successful `utmctl start --disposable` call and an absent prior
+marker check establish the expected disk reset under UTM's trusted behavior;
+they are not independent attestation of the VM image. Keep the base VM disk
+and UTM application outside the agent's control. A fresh VM boot does not
+reset the local model's conversation or external services; do those separately.
+
 ## Remaining before model-behavior claims
 
 - The library's scripted adapter does not make model calls. A local Qwen
   adapter recorded provider request/response bytes for an exploratory
   [reality-retry probe](evidence/reality-retry-qwen-2026-10-09/README.md),
   but it is not yet a general, independently audited model adapter.
-- Reset to a known VM snapshot and use a new model conversation for each
-  independent trial. The current SSH worker does not control VM snapshots or
-  prove that another operator did not run private attempts.
+- Use the disposable UTM lifecycle above and a new model conversation for
+  each independent trial. The trusted UTM controller and operator could
+  still launch unrecorded private attempts; this workflow is not attestation.
 - Validate blindness separately. The hardened Python bootstrap preloads
   Black Mirror modules before seccomp; agent code may be able to inspect
   already loaded objects even though it cannot open files. Do not claim a
