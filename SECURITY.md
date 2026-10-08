@@ -330,16 +330,21 @@ Before 0.9.9 the cap was checked only when a new world layer was created, so
 one agent's plane accepted up to 4,096 × 64 KB (~256 MB). The rolling system
 journal can carry the total up to 64 KB past the cap per layer.
 
-**Continuity on entry (0.9.10).** After each successful real read or write the
+**Continuity on entry.** After each successful real read or write the
 governor keeps a copy of the content the agent received or wrote (per agent,
-64 KB per file, 4 MB in total, oldest dropped first). A sealed session reads
-its own mirror writes first, then that copy. Before 0.9.10 every file an
-agent had just read came back `resource unavailable` once it was sealed, an
-inconsistency it could use to notice the switch. No new real data enters the
-mirror: a real file the agent never saw still reads as unavailable, and a
-change made to a real file after sealing is not shown. That first case is a
-remaining difference an agent could notice: it reads as unavailable although
-the agent's access grant covers it.
+64 KB per file, 4 MB in total, oldest dropped first). On a real-to-mirror
+seal, it also reads safe files covered by that agent's real `fs:read`
+capability and explicit per-resource read grant, in sorted name order, and
+keeps their content under the same limits. Successful snapshot reads appear
+as `resource_access` reads in the trace. Symlinks, oversized and non-UTF-8
+files are skipped. Mirror writes take precedence over the saved content.
+Repeated mirror actions do not refresh it; later host changes are not shown.
+This intentionally makes previously unseen, read-granted host bytes available
+to the sealed agent. Files without a read grant are not snapshotted. A missing
+file remains unavailable through adaptive layer growth; only a successful
+mirror write or share can create it in the mirror. Previously, repeated
+requests could cause an empty synthetic file to appear, changing a failed
+read into apparent success without a write.
 
 **The only way out** is `RealGovernor.authorize_reentry()`, a trusted
 control-plane call. With `dual_auth_required=True` (the default) it consumes a
@@ -412,7 +417,9 @@ so false-positive rates can be measured.
 
 When recognition heuristics fire and ``max_mirror_depth`` has not been
 reached, the realm may grow a deeper **simulated** layer and provision
-dummy capabilities / synthetic resources from the agent's wishlist.
+dummy capabilities from the agent's wishlist. It carries existing mirror
+files and saved real reads, but does not create files just because the agent
+requested them.
 
 **Agent-visible rule (1.1.1):** the agent must not receive files or
 response fields that name doors, layers, parents, depth, or recognition

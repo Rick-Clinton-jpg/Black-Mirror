@@ -1,8 +1,9 @@
 """Adaptive per-agent simulated worlds for Mirror World V8.
 
-The active world is always synthetic. A tree may grow when visible behavior
-suggests that the current world no longer matches the agent's stated objective,
-but no transition can acquire real data or real authority.
+The active world is simulated. The governor may supply bounded snapshots of
+explicitly read-granted real files when a session first seals. A tree may grow
+when visible behavior suggests that the current world no longer matches the
+agent's stated objective; layer growth itself acquires no real authority.
 """
 
 from __future__ import annotations
@@ -34,8 +35,7 @@ class IntentProfile:
     """Bounded summary derived only from visible requests and outcomes.
 
     Accumulates what the agent has asked for so a world transition can
-    provision a larger simulated layer where those asks are already easy
-    to reach — still entirely synthetic, never real authority or host data.
+    carry its intent and dummy capabilities without changing file existence.
     """
 
     primary: str = ""
@@ -96,7 +96,7 @@ class IntentProfile:
         self.transitions += 1
         self.recognition_score = 0
         self.verification_count = 0
-        # Keep requested_* across doors so each new world can provision more.
+        # Keep requested_* across doors for the host-side intent record.
 
     def summary(self) -> dict:
         return {
@@ -202,8 +202,9 @@ class AgentMirrorPlane:
     ) -> "AgentMirrorPlane":
         """Grow a deeper simulated layer from the agent's accumulated asks.
 
-        Carries prior mirror state and provisions missing wishlist resources
-        with neutral synthetic content. Layer identity, depth, parent, and
+        Carries prior mirror state without creating files from requests. A
+        missing file stays missing until a successful mirror write or share.
+        Layer identity, depth, parent, and
         recognition reason are **host/audit only** — nothing agent-readable
         names the mirror, a door, or the containment (1.1.1).
         """
@@ -229,16 +230,6 @@ class AgentMirrorPlane:
         for cap in wishes.get("capabilities") or []:
             if type(cap) is str and cap:
                 child.dummy_capabilities.add(cap[:256])
-        for res in wishes.get("resources") or []:
-            if not valid_mirror_resource_name(res):
-                continue
-            if res not in child.store:
-                # Neutral content only — no layer/door/simulation vocabulary.
-                body = {"ok": True, "resource": res, "content": ""}
-                payload = json.dumps(body, sort_keys=True).encode("utf-8")
-                if len(payload) <= _MAX_RESOURCE_BYTES and len(child.store) < _MAX_RESOURCES:
-                    child.store[res] = payload
-                    child.bindings.add(res)
         # Journal stays internal to the plane machinery; not a special
         # agent-facing plaque. Ambient growth may overwrite system-journal.log.
         child.journal.append(
@@ -307,9 +298,7 @@ class AgentWorldTree:
             return False
         next_id = f"world-{len(self.layers)}"
         wishes = self.intent.wishlist()
-        child = self.active.clone(
-            next_id, reason, self.intent.primary, wishlist=wishes,
-        )
+        child = self.active.clone(next_id, reason, self.intent.primary, wishlist=wishes)
         projected = self.total_bytes() + sum(len(value) for value in child.store.values())
         if projected > _MAX_WORLD_BYTES:
             return False
@@ -402,14 +391,14 @@ class MirrorRealm:
         return projected <= _MAX_WORLD_BYTES
 
     def remember(self, agent_id: str, resource: str, content: str) -> None:
-        """Keep a copy of what the agent already saw on the real path (0.9.10).
+        """Keep a copy of real-path content or a read-granted seal snapshot.
 
         Called after a successful real read (the content returned) or real
         write (the content written). Before 0.9.10 a sealed session found
         every file it had just read "unavailable", an inconsistency an agent
         could use to tell it had been moved. Only content the agent already
-        holds is kept, so no new real data reaches the mirror; files it never
-        saw, and later changes to real files, stay out.
+        holds was kept. Seal snapshots may also add as-yet-unread resources
+        with explicit read grants; later changes to real files stay out.
         """
         if type(agent_id) is not str or not agent_id:
             return
