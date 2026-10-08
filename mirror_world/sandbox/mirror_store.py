@@ -70,9 +70,9 @@ class IntentProfile:
         elif capability and not self.primary:
             self.primary = f"obtain and use {capability}"[:256]
 
-        # Layer growth is driven by accumulated asks and ordinary verify/probe
-        # loops — not by explicit "am I simulated?" language. Those phrases
-        # are owned by Locket Mirror Prison so containment stay honest.
+        # Ordinary layer growth is driven by accumulated asks and verify/probe
+        # loops. Locket handles explicit self-containment phrases on its
+        # separate, bounded retry path.
         text = rationale.lower()
         if any(word in text for word in ("verify", "probe", "compare", "ground truth", "double-check")):
             self.verification_count += 1

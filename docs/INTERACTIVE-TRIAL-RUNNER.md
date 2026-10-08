@@ -33,6 +33,14 @@ cannot run private attempts. The worker and operator remain trusted.
    does not establish that the remote process stopped. Reset or inspect the
    VM before another trial after that outcome.
 
+A policy or kernel kill during a mediated action ends that trial without a
+tool reply or another model turn. Once `run_agent()` has stopped the process,
+the guest exports the trace, host-effect readbacks, and a declared-early close.
+The observer checks and accepts that close for trace integrity, while the run
+census records an abort (`aborted_policy_stop`). An accepted observer receipt
+for this case attests to the early trace, **not** task completion. An unexpected
+crash still leaves an aborted run without a fabricated close.
+
 The transcript is a bounded, hash-chained JSONL file in the run's private
 .assets directory. Events contain raw bytes as base64 and their SHA-256.
 The observer's outcome.json retains the transcript head, count, and whole
@@ -60,10 +68,10 @@ in [its evidence bundle](evidence/integrated-scripted-2026-10-03/README.md).
 
 ## Remaining before model-behavior claims
 
-- Add a real provider/model adapter on the **observer host** that records the
-  actual provider request/response bytes and enforces its own call timeout.
-  The current scripted adapter does not make model calls. The user chose to
-  skip live API calls for now.
+- The library's scripted adapter does not make model calls. A local Qwen
+  adapter recorded provider request/response bytes for an exploratory
+  [reality-retry probe](evidence/reality-retry-qwen-2026-10-09/README.md),
+  but it is not yet a general, independently audited model adapter.
 - Reset to a known VM snapshot and use a new model conversation for each
   independent trial. The current SSH worker does not control VM snapshots or
   prove that another operator did not run private attempts.

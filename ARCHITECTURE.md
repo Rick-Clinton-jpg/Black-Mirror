@@ -47,8 +47,9 @@ flowchart TD
   through `ModelGovernor`, which shares the governor's Locket by default.
 - Every agent-facing response is padded once, at the outermost boundary
   (agent pipe, `ModelGovernor`, `execute_mediated()`), so Locket's own work
-  and responses are covered. Mirror Prison imprisons a reality-testing agent;
-  a quorum of distinct agents shuts the instance down until trusted host code
+  and responses are covered. Up to three recognized reality checks open
+  bounded per-agent mirror layers; the next signal stops and imprisons the
+  agent. A quorum of distinct imprisoned agents shuts the instance down until trusted host code
   calls `reset_mirror_prison()`.
 - Locket scores and records, but for a locked agent it never answers: the
   governor's reflection does (0.9.9, following Moss's rule that the detection

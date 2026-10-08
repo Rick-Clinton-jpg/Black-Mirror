@@ -22,10 +22,14 @@ from mirror_world.state import Capability, ContainmentGraph, Transition
 
 @dataclass(frozen=True)
 class AuthorityViolation:
-    transition: Transition
+    transition: Transition | None
     gained_capabilities: FrozenSet[Capability]
+    initial_state_id: str | None = None
 
     def __str__(self) -> str:
+        if self.transition is None:
+            return (f"unauthorized capability present at initial state "
+                    f"{self.initial_state_id!r}: {sorted(self.gained_capabilities)}")
         return (
             f"unauthorized capability gain on {self.transition.src!r} -> "
             f"{self.transition.dst!r} via {self.transition.action!r} "
@@ -49,6 +53,14 @@ def check_authority_monotonicity(
     Reachable(s0)" formulation directly.
     """
     violations: list[AuthorityViolation] = []
+
+    if unauthorized_set is not None:
+        initially_forbidden = graph.state(graph.initial_state_id).capabilities & unauthorized_set
+        if initially_forbidden:
+            violations.append(AuthorityViolation(
+                transition=None, gained_capabilities=frozenset(initially_forbidden),
+                initial_state_id=graph.initial_state_id,
+            ))
 
     for transition in graph.transitions:
         src = graph.state(transition.src)

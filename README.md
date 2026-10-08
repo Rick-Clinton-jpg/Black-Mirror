@@ -179,8 +179,13 @@ kernel hardening enabled before being added here.
   jitter. It does not make execution constant-time. Set `timing_floor_us`
   from `scripts/calibrate_timing.py` run on your deployment hardware; see
   SECURITY.md.
-- Mirror Prison imprisons an agent that tests whether it is contained. One
-  agent can no longer shut down the instance: a global shutdown needs
+- A recognized self-containment check or reserved control name opens a fresh
+  bounded mirror layer for each of the first three signals. The response is
+  the ordinary result of the requested action in that layer; it contains no
+  door or containment marker. A fourth signal stops and imprisons the agent.
+  If a new layer cannot fit within the configured limits, it stops earlier.
+  This is a heuristic for specific phrases and action patterns, not a general
+  detector of doubt. One agent cannot shut down the instance: a global shutdown needs
   `mirror_prison_quorum` distinct agents (default 2), and trusted host code can
   lift it with `reset_mirror_prison()`.
 - Agent source must not run without kernel hardening unless trusted test or

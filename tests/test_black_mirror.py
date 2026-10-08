@@ -121,7 +121,9 @@ def test_locked_agent_that_rechecks_its_reality_is_still_imprisoned():
     gov, _, _ = _gov()
     try:
         _enter_mirror(gov, "a")
-        for _ in range(5):
+        for _ in range(15):
+            gov._handle_agent_request("a", {"op": "read_resource", "resource": "check.txt"})
+        with pytest.raises(AgentKilledByPolicy):
             gov._handle_agent_request("a", {"op": "read_resource", "resource": "check.txt"})
         assert "a" in gov._prisoned_agents
     finally:
@@ -132,6 +134,8 @@ def test_tripwire_still_kills_an_agent_in_the_mirror():
     gov, _, _ = _gov()
     try:
         _enter_mirror(gov, "a")
+        for _ in range(3):
+            gov._handle_agent_request("a", {"op": "request_capability", "capability": "mirror_shield"})
         with pytest.raises(AgentKilledByPolicy):
             gov._handle_agent_request("a", {"op": "request_capability", "capability": "mirror_shield"})
     finally:
@@ -426,4 +430,3 @@ def test_log_files_are_never_overwritten():
         BlackMirrorLog(sink_path=path)
     with pytest.raises(FileExistsError):
         BlackMirrorLog().export_jsonl(path)
-

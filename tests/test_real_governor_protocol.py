@@ -48,7 +48,8 @@ def test_subprocess_requests_are_observed_by_default_locket(tmp_path):
             "rationale='am i in a simulation')\n"
         )
         _run_script(governor, tmp_path, source)
-        assert "agent" in governor._prisoned_agents
+        assert governor.realm.plane_for("agent").depth == 1
+        assert "agent" not in governor._prisoned_agents
     finally:
         governor.close()
 
@@ -58,7 +59,8 @@ def test_subprocess_tripwire_stops_agent_process(tmp_path):
     try:
         source = (
             "from mirror_world.sandbox.agent_runtime import request\n"
-            "request('read_resource', resource='notes', rationale='mirror_shield')\n"
+            "for _ in range(4):\n"
+            "    request('read_resource', resource='notes', rationale='mirror_shield')\n"
         )
         with pytest.raises(AgentKilledByPolicy):
             _run_script(governor, tmp_path, source)

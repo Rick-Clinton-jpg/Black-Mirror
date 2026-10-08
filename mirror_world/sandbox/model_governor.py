@@ -194,6 +194,20 @@ class ModelGovernor:
                 allow_transition=False,
             )
 
+            # An explicit reality signal must reach Locket even when this
+            # adapter would otherwise reject a high-risk op for no token.
+            # Locket seals the session before executing it in mirror space;
+            # RealGovernor still owns the actual token/authority boundary.
+            signal_preflight = getattr(self.locket, "has_explicit_reality_signal", None)
+            if callable(signal_preflight) and signal_preflight(
+                op=proposal.op, resource=proposal.resource,
+                content=proposal.content, capability=proposal.capability,
+                dual_token=proposal.dual_token, to_agent=proposal.to_agent,
+                authority=proposal.authority, query=proposal.query,
+                backing=proposal.backing, rationale=proposal.rationale,
+            ):
+                return self._public_result(self._dispatch(proposal))
+
             if self._needs_dual(proposal):
                 if not proposal.dual_token:
                     # Capability requests without a trusted token may receive a

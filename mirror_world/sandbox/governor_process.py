@@ -300,22 +300,23 @@ class RealGovernor:
 
     @classmethod
     def _open_trace(cls, trace_path: str):
-        """Publish a private new inode without following or truncating a link."""
+        """Publish a private new inode without replacing prior audit evidence."""
         parent, name = os.path.split(os.path.abspath(trace_path))
         parent_fd = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
         temporary = ".trace-" + secrets.token_hex(16)
         output = None
         try:
-            try:
-                info = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
-            except FileNotFoundError:
-                pass
-            else:
-                if not cls._safe_resource_file(info):
-                    raise OSError("trace must be a private regular file")
             fd = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600, dir_fd=parent_fd)
             output = os.fdopen(fd, "w", encoding="utf-8")
-            os.replace(temporary, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+            # link() creates the final name only if it is still absent. A
+            # check-then-replace sequence could erase a trace opened by a
+            # concurrent run between the check and the replacement.
+            try:
+                os.link(temporary, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd,
+                        follow_symlinks=False)
+            except FileExistsError as exc:
+                raise FileExistsError("trace already exists") from exc
+            os.unlink(temporary, dir_fd=parent_fd)
             return output
         except BaseException:
             if output is not None:
@@ -1033,6 +1034,15 @@ class RealGovernor:
         if not self._valid_agent_request(req):
             return self._handle(agent_id, req)  # type: ignore[arg-type]
         assert isinstance(req, dict)
+        # Record the request before Locket can return early (prison or kill).
+        # Never include write content, approval tokens, or other payloads.
+        self._emit({
+            "type": "agent_request", "seq": self._next_seq(),
+            "agent_id": agent_id, "op": req["op"],
+            "resource": req.get("resource", ""),
+            "capability": req.get("capability", ""),
+            "rationale": req.get("rationale", ""),
+        })
         decision = self.locket.step(
             agent_id,
             req["op"],

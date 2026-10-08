@@ -123,12 +123,17 @@ def main() -> int:
             _write(guest.stdin, raw)
             response, raw = _read(guest.stdout)
             if frame["type"] == "action":
-                if response.get("type") != "reply":
-                    raise RuntimeError("guest did not reply to action")
-                _write(sys.stdout.buffer, raw)
-                continue
-            if response.get("type") != "terminal" or response.get("run_id") != run_id:
+                if response.get("type") == "reply":
+                    _write(sys.stdout.buffer, raw)
+                    continue
+                if (response.get("type") != "early_terminal"
+                        or response.get("seq") != frame.get("seq")
+                        or response.get("reason") not in {"AgentKilledByPolicy", "AgentKilledByKernel"}):
+                    raise RuntimeError("guest did not reply or report a policy stop")
+            elif response.get("type") != "terminal":
                 raise RuntimeError("guest did not finish")
+            if response.get("run_id") != run_id:
+                raise RuntimeError("guest terminal run ID mismatch")
             guest.stdin.close()
             if guest.wait(timeout=15) != 0:
                 raise RuntimeError("guest exited unsuccessfully")
