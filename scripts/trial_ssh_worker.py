@@ -1,7 +1,8 @@
 """Trusted observer-host SSH controller for one UTM/Linux guest execution.
 
 Requires key/agent SSH authentication and a known host key. This process is
-launched once by launch_trial. It does not retry a failed guest command.
+launched once by launch_trial under the disposable UTM lifecycle wrapper.
+It consumes that boot's one-run marker and does not retry a failed guest command.
 The SSH destination and VM image identifier are operator-supplied claims;
 this is not remote attestation.
 """
@@ -11,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -21,6 +23,7 @@ from mirror_world import anchor
 
 _MAX_FRAME = 1_048_576
 _DEST = re.compile(r"\A[A-Za-z0-9._-]+@[A-Za-z0-9.:-]+\Z")
+_BOOT_ID = re.compile(r"\A[0-9a-f]{32}\Z")
 
 
 def _read(stream) -> tuple[dict, bytes]:
@@ -79,6 +82,17 @@ def main() -> int:
     start, registration = init["start"], init["registration"]
     anchor.validate_registration(start, registration)
     run_id = start["run_id"]
+    boot_id = os.environ.get("BLACK_MIRROR_FRESH_BOOT_ID", "")
+    if not _BOOT_ID.fullmatch(boot_id):
+        raise RuntimeError("fresh disposable VM boot is required")
+    # Consume the one-run marker before staging any agent source. A second
+    # worker on the same boot cannot reuse this marker, even if it has the ID.
+    marker = '"$HOME/.black-mirror-trial-boot"'
+    used = '"$HOME/.black-mirror-trial-boot.used"'
+    consume = (f"test -f {marker} && test ! -e {used} && "
+               f"test \"$(cat {marker})\" = {shlex.quote(boot_id)} && "
+               f"mv {marker} {used}")
+    _run(ssh + [args.destination, consume])
     source = Path(init["source_archive_path"])
     config = Path(init["config_path"])
     assets = source.parent
