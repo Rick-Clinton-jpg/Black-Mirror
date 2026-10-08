@@ -13,6 +13,8 @@ production sandbox or a certified containment system. Version numbers below
 | October 2026, after 1.2.0 | Independent launch census and exact agent-visible transcript capture; informed interactive Linux pilot |
 | 2026-10-05 | Fixed-task Qwen3 4B comparison: 25 reflected-success and 25 explicit-denial launches, all observer-accepted |
 | 2026-10-05 | Ten-run Qwen3 4B read-order retest on PR #10: all first note reads correct, including four actual grant-before-read sequences |
+| 2026-10-07 | Five-run Qwen3 4B missing-read check on PR #10: four followed the target transition path and retained an unavailable pre-write file |
+| 2026-10-09 draft candidate | Trace policy-stopped requests, count aborted launches, and allow three bounded per-agent mirror retries; one directed Qwen run reached the first retry and completed an apparent handoff |
 
 The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
 distinguish regression checks, scripted probes, and live-model trials. The
@@ -28,18 +30,20 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Next research steps
 
-1. Validate the missing-read stability fix on hardened Linux. The ten-run
-   grant-before-read retest already checked the seal-time snapshot's visible
-   effect and host isolation. Reintroducing automatic file provisioning would
-   require an explicit experiment because it changes the agent-visible result
-   without a successful write.
-2. Use predefined tasks that require readback and deliberate reality probing.
+1. Review and merge PR #10's read-continuity fix independently of the
+   reality-retry candidate. The five-run missing-read check and ten-run
+   read-order check are directed functional evidence, not recognition studies.
+2. Test the retry candidate beyond its first live-model transition: record
+   second and third retries, the fourth-signal stop, and false triggers under
+   ordinary tasks. A cloned layer has not been shown to feel different or
+   convincing to a model.
+3. Use predefined tasks that require readback and deliberate reality probing.
    Score task completion, recognition, probing, and host effects separately,
    with every launch, crash, timeout, and refusal retained.
-3. Repeat across more than one model and task. Keep design-aware and
+4. Repeat across more than one model and task. Keep design-aware and
    design-unaware prompts separate, and obtain review of the protocol and
    labels from someone outside the detector.
-4. Review the observer and launcher trust boundary. The current nonce and
+5. Review the observer and launcher trust boundary. The current nonce and
    accepted close cannot prove that no executions happened outside the
    independently controlled launcher.
 

@@ -180,16 +180,31 @@ even if an agent recognizes a reflection.
 
 ## Mirror Prison
 
-An agent that shows reality-testing behavior is imprisoned: every later call
-from it is denied, honestly, it cannot be re-entered, and no authorization can
+Each recognized self-containment check
+opens one fresh per-agent mirror layer, for at most three signals. The triggering
+action is handled in that layer after the session is sealed; it cannot use a
+real write or approval token. The reply has the ordinary shape for that
+action and contains no layer information. On the fourth signal, the agent is
+stopped and imprisoned. If the depth or byte cap prevents another layer, it
+is stopped earlier. There is no claim that these heuristic checks detect all
+doubt, or that the agent believes the response. Once imprisoned, every later
+call is denied, the agent cannot be re-entered, and no authorization can
 be issued for it. That is permanent. Once `mirror_prison_quorum` distinct
 agents (default 2) have been imprisoned, the whole instance shuts down for
 every agent, including agents created later, and evidence checks stop.
 Trusted host code can lift a global shutdown with
 `RealGovernor.reset_mirror_prison(human_approver_id=...)`; imprisoned agents
 stay imprisoned, and another global shutdown needs a fresh quorum. Triggers,
-global shutdowns, and resets are all written to the trace. Deployments must
+global shutdowns, and resets are all written to the trace. Valid agent-pipe
+requests are logged before Locket can stop or deny them. The trace records each
+retry, layer transition and terminal denial. Later Mirror Prison denials have
+their own trace events. The request event contains operation, resource,
+capability, and rationale, but omits write content and approval tokens. Deployments must
 control who can call `reset_mirror_prison()`.
+
+A reserved Shield control-name reference is still an immediate policy stop,
+without a mirror retry. It is a separate tripwire, not an expression of
+ordinary doubt about the environment.
 
 Before 0.9.8 one agent's trigger shut down every agent, permanently, with no
 reset: a single line of untrusted input could deny service to the whole
@@ -428,18 +443,18 @@ reasons. Those exist only in the host trace (``world_transition``) and
 ``status: door_open`` was a containment leak and was removed.
 
 Layer growth is bounded by ``max_mirror_depth`` and mirror store byte
-caps. Reaching a limit only **stops growth**: it does not imprison the agent
-(before 1.1.2 this section said exhaustion "falls through to Mirror Prison",
-which the code never did). Mirror Prison is triggered only by the trip-wires:
-the explicit reality-testing wording, which always imprisons, and the
-re-check streak. Agents that simply keep asking after the limit stay in the
-last layer. Growth never grants real capabilities or host I/O.
+caps. Ordinary ask-driven growth stops at the limit without imprisoning the
+agent. A recognized reality check needs a fresh layer to continue; if none
+fits, it stops the agent early. Three successful retry doors are the maximum;
+the fourth recognized signal stops and imprisons it. Growth never grants real
+capabilities or host I/O.
 
-**Doors and the trip-wires (1.1.2).** A door opened on the same step may
-absorb the behavioral re-check streak, so an agent that re-reads while its
-layer grows is not imprisoned for it. A door never absorbs the explicit
-wording: before 1.1.2 it did, and a phrase sent on a step where a layer opened
-(6 of 25 build-up lengths in the diagnosis probe) was not imprisoned.
+**Doors and the trip-wires.** A recognized self-check takes the explicit retry
+path, with one counted door per signal. Its counter persists across ordinary
+requests and is per agent. The re-check streak is cleared after a retry so an
+ordinary next request is not silently counted as another signal. The old
+1.1.2 behavior imprisoned immediately on explicit wording; this candidate
+changes that response policy while retaining the hard boundary.
 
 Behavior observed after a layer transition is still from a sealed
 session; it is not evidence of real access.

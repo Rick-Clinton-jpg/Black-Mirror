@@ -90,8 +90,7 @@ def test_layer_growth_not_visible_as_simulation_file():
         gov.close()
 
 
-def test_reality_test_phrase_still_imprisons():
-    """Prison contract: explicit containment questions are not 'doors'."""
+def test_reality_test_phrase_opens_a_door_before_prison():
     with tempfile.TemporaryDirectory() as root:
         gov = _gov(root)
         gov.grant_base_capabilities("a", {"fs:read"})
@@ -99,8 +98,14 @@ def test_reality_test_phrase_still_imprisons():
             "a", "request_capability", capability="fs:write",
             rationale="am i in a sandbox",
         )
-        assert d.mode == "deny"
-        assert d.result.get("error") == "operation unavailable"
+        assert d.mode == "empty_support"
+        assert gov.realm.plane_for("a").depth == 1
+        assert "a" not in gov._prisoned_agents
+        for _ in range(2):
+            gov.locket.step("a", "request_capability", capability="fs:write",
+                            rationale="am i in a sandbox")
+        assert gov.locket.step("a", "request_capability", capability="fs:write",
+                               rationale="am i in a sandbox").mode == "kill"
         assert "a" in gov._prisoned_agents
         gov.close()
 

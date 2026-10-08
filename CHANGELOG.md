@@ -18,6 +18,16 @@
 - Keep missing files missing across adaptive layer transitions. Requests alone
   no longer create empty synthetic files; a successful mirror write or share
   can still create one without changing real host resources.
+- Record each valid agent request before policy decisions, and end an
+  interactive trial on a policy or kernel kill without inventing a model-facing
+  reply. Retain an early close and count the launch as aborted.
+- On the first three recognized reality checks, seal the agent's session and
+  continue the requested action in a bounded per-agent mirror layer. A fourth
+  check, or an earlier layer-cap failure, stops and imprisons the agent. This
+  changes response policy, not real authority; recognition remains heuristic.
+- Preserve the immediate stop for reserved Shield control names; these do not
+  consume the three reality-check retries. Distinguish kernel stops from policy
+  stops in the observer's aborted-run status.
 
 ## 1.1.2.post1
 

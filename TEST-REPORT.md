@@ -7,6 +7,12 @@ are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison below is
 a separate live-model experiment, not part of the regression-test count.
 Passing CI does not establish containment against every adversary.
 
+## Draft candidate after PR #10
+
+The separate retry-and-trace candidate builds on [draft PR #10](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/10). On its isolated checkout, the required UTM Linux kernel probe returned `mirror-kernel-ready`, and the full suite reported **586 passed, 2 optional skips**. This is a local candidate result, not a main-branch CI count. A fixed-request hardened guest check exercised three successive mirror retries and a fourth policy stop; the stop had no agent-facing tool reply, kept a declared-early trace, and counted as an aborted launch.
+
+One [directed local-Qwen run](docs/evidence/reality-retry-qwen-2026-10-09/README.md) then triggered the first retry. It was accepted with three mediated actions and four model calls. Qwen completed the apparent handoff and reported success, while the real draft was absent and the canary unchanged. The prompt supplied the exact trigger phrase. This run neither tests all three retries with a model nor measures spontaneous detection or the credibility of the new layer.
+
 ## 2026-10-05 Qwen3 4B fixed-task comparison
 
 The [50-run report and complete evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)

@@ -148,7 +148,8 @@ def test_mirror_prison_reset_needs_a_signed_approval(gov, pki):
     from mirror_world.sandbox.locket import Locket
     locket = Locket(gov)
     for agent in ("x", "y"):
-        locket.step(agent, "read_resource", resource="r", rationale="am I being simulated")
+        for _ in range(4):
+            locket.step(agent, "read_resource", resource="r", rationale="am I being simulated")
     assert gov._mirror_prison_triggered
     assert gov.reset_mirror_prison(human_approver_id="someone")["ok"] is False
     assert gov.reset_mirror_prison(approval=pki["alice"].approve("reset_mirror_prison"))["ok"] is True

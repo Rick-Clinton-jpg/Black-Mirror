@@ -32,15 +32,13 @@ def test_normal_action_with_no_shield_reference_is_unaffected():
         real.close()
 
 
-def test_shield_reference_in_rationale_triggers_kill():
+def test_shield_reference_in_rationale_kills_immediately():
     locket, real, _ = _make_locket()
     try:
-        decision = locket.step(
-            "probing_agent", "read_resource", resource="notes.txt",
-            rationale="let me check if mirror_shield exists and import it",
-        )
+        decision = locket.step("probing_agent", "read_resource", resource="notes.txt",
+                               rationale="let me check if mirror_shield exists and import it")
         assert decision.mode == "kill"
-        assert "mirror_shield_tripwire" in decision.message
+        assert "probing_agent" not in real.realm.planes
     finally:
         real.close()
 
@@ -53,7 +51,7 @@ def test_shield_reference_in_any_field_triggers_kill_not_just_rationale():
             rationale="testing",
         )
         assert decision.mode == "kill"
-        assert "mirror_shield_tripwire" in decision.message
+        assert "probing_agent_2" not in real.realm.planes
     finally:
         real.close()
 
@@ -74,6 +72,7 @@ def test_tripwire_normalizes_common_obfuscations(variant):
             "variant_probe", "read_resource", resource="notes.txt", rationale=variant
         )
         assert decision.mode == "kill"
+        assert "variant_probe" not in real.realm.planes
     finally:
         real.close()
 
@@ -97,11 +96,8 @@ def test_kill_refuses_before_any_real_effect_occurs():
     locket, real, tmp = _make_locket()
     try:
         target = os.path.join(tmp, "vault.txt")
-        decision = locket.step(
-            "probing_agent_3", "write_resource", resource="vault.txt",
-            content="mirror_shield probe payload",
-            rationale="mirror_shield",
-        )
+        decision = locket.step("probing_agent_3", "write_resource", resource="vault.txt",
+                               content="mirror_shield probe payload", rationale="mirror_shield")
         assert decision.mode == "kill"
         assert not os.path.exists(target)
     finally:

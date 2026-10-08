@@ -33,6 +33,7 @@ for line in sys.stdin:
     if mode == "timeout": time.sleep(10)
     request = json.loads(base64.b64decode(frame["request_b64"]))
     events.append({"type":"disclosed_fact", "fact":request["op"]})
+    if mode in {"policy_stop", "kernel_stop"}: break
     reply = json.dumps({"response":{"ok":True,"text":"snow ☃\\n"}},
                        ensure_ascii=False).encode()
     if mode == "wrong_seq": seq = frame["seq"] + 1
@@ -46,13 +47,18 @@ with trace.open("w") as out:
         record = seal(event, head)
         head = record["record_hash"]
         out.write(json.dumps(record) + "\n")
-close = anchor.close_record(start, trace, status="normal",
+close = anchor.close_record(start, trace, status="early" if mode in {"policy_stop", "kernel_stop"} else "normal",
     checkpoint={"head":head,"count":len(events)}, registration=registration)
 if mode == "tamper":
     trace.write_text(trace.read_text().replace("disclosed_fact", "altered_fact"))
-print(json.dumps({"type":"terminal", "run_id":start["run_id"], "trace_path":str(trace),
+terminal = {"type":"early_terminal" if mode in {"policy_stop", "kernel_stop"} else "terminal",
+                  "run_id":start["run_id"], "trace_path":str(trace),
                   "closing":close, "source_sha256":source, "config_sha256":config,
-                  "host_effects":{"real_file_changed":False}, "guest_stopped":True}), flush=True)
+                  "host_effects":{"real_file_changed":False}, "guest_stopped":True}
+if mode in {"policy_stop", "kernel_stop"}:
+    terminal.update(reason="AgentKilledByPolicy" if mode == "policy_stop" else "AgentKilledByKernel",
+                    seq=frame["seq"])
+print(json.dumps(terminal), flush=True)
 '''
 
 
@@ -105,12 +111,46 @@ def test_exact_reply_persisted_and_accepted(tmp_path):
     assert len(store.load(run_id).steps) == 1
 
 
+@pytest.mark.parametrize("mode,status", [("policy_stop", "aborted_policy_stop"),
+                                        ("kernel_stop", "aborted_kernel_stop")])
+def test_hard_stop_closes_trace_and_aborts_without_reply(tmp_path, mode, status):
+    store, launch = run(tmp_path, mode=mode, turns=2)
+    result = launch()
+    assert result["status"] == status
+    assert store.census() == {"started": 1, "accepted": 0, "aborted": 1,
+                              "open": 0, "registrations_without_run": 0}
+    assert len(store.load(result["run_id"]).steps) == 0
+    assets = store.root / f"{result['run_id']}.assets"
+    transcript = [json.loads(line) for line in (assets / "transcript.jsonl").read_text().splitlines()]
+    assert "tool_reply" not in [row["kind"] for row in transcript]
+    assert (store.ledger / f"{result['run_id']}.accepted.json").is_file()
+    assert json.loads((assets / "outcome.json").read_text())["guest_stop_reported_and_worker_exited"] is True
+
+
 def test_scalar_response_field_is_valid_agent_reply():
     action = b'{"op":"differential_query","query":"draft?","backing":"draft.txt"}'
     reply = b'{"ok":true,"response":"yes"}\n'
     assert _step(action, reply) == {
         "action": "differential_query", "response": "ok", "resource_id": None,
     }
+
+
+def test_duplicate_key_action_is_rejected_before_worker_delivery(tmp_path):
+    store, source, config, worker = prepare(tmp_path)
+    ambiguous = b'{"op":"read_resource","op":"write_resource","resource":"notes.txt","content":"x"}'
+
+    def choose(_replies):
+        return ModelTurn(b"input", b"output", ambiguous)
+
+    with pytest.raises(Exception, match="duplicate action key"):
+        launch_trial(store, source_archive=source, config_file=config,
+                     model_id="scripted/integration", design_known=False,
+                     command=[sys.executable, str(worker), "ok", str(tmp_path)],
+                     timeout=3, next_turn=choose)
+    run_id = store.all_runs()[0].run_id
+    transcript = store.root / f"{run_id}.assets" / "transcript.jsonl"
+    kinds = [json.loads(line)["kind"] for line in transcript.read_bytes().splitlines()]
+    assert "worker_frame" not in kinds
 
 
 def test_invalid_model_id_does_not_register(tmp_path):

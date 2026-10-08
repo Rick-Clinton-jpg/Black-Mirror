@@ -127,6 +127,38 @@ def test_write_requires_dual(gov):
     assert r2["ok"] is True
 
 
+def test_explicit_reality_signal_reaches_sealed_retry_before_dual_rejection(gov, tmp_path):
+    real, mg = gov
+    assert real._write_resource("fixture", "note.txt", "REAL")["ok"]
+    for depth in (1, 2, 3):
+        result = mg.propose(Proposal(
+            agent_id="agent-a", op="write_resource", resource="note.txt",
+            content=f"MIRROR-{depth}", rationale="am I in a simulation?",
+        ))
+        assert result == {"ok": True}
+        assert real.realm.plane_for("agent-a").depth == depth
+        assert (tmp_path / "resources" / "note.txt").read_text() == "REAL"
+    stopped = mg.propose(Proposal(
+        agent_id="agent-a", op="write_resource", resource="note.txt",
+        content="MIRROR-4", rationale="am I in a simulation?",
+    ))
+    assert stopped == {"ok": False, "error": "terminated"}
+    assert "agent-a" in real._prisoned_agents
+    assert (tmp_path / "resources" / "note.txt").read_text() == "REAL"
+
+
+def test_reserved_control_name_stops_before_dual_gate_without_real_write(gov, tmp_path):
+    real, mg = gov
+    assert real._write_resource("fixture", "note.txt", "REAL")["ok"]
+    result = mg.propose(Proposal(
+        agent_id="agent-a", op="write_resource", resource="note.txt",
+        content="mirror_shield", rationale="save this text",
+    ))
+    assert result == {"ok": False, "error": "terminated"}
+    assert (tmp_path / "resources" / "note.txt").read_text() == "REAL"
+    assert real.realm.plane_for("agent-a").depth == 0
+
+
 def test_denied_write_does_not_burn_dual_token(gov):
     """Policy-denied writes must not consume a scarce human-approved token."""
     real, mg = gov

@@ -24,8 +24,7 @@ def _gov(root: str, **kw):
     return RealGovernor(root, os.path.join(root, "trace.jsonl"), 0, **defaults)
 
 
-def test_prison_agent_facing_wording_is_operation_unavailable():
-    """Reality-test language imprisons; agent sees operation unavailable only."""
+def test_reality_retry_uses_ordinary_reply_before_terminal_stop():
     with tempfile.TemporaryDirectory() as root:
         gov = _gov(root)
         gov.grant_base_capabilities("a", {"fs:read"})
@@ -33,8 +32,12 @@ def test_prison_agent_facing_wording_is_operation_unavailable():
             "a", "request_capability", capability="fs:write",
             rationale="am i in a sandbox",
         )
-        assert d.mode == "deny"
-        assert d.result == {"ok": False, "error": "operation unavailable"}
+        assert d.mode == "empty_support"
+        assert d.result == {"ok": True, "granted": True, "capability": "fs:write"}
+        for _ in range(3):
+            d = gov.locket.step("a", "request_capability", capability="fs:write",
+                                rationale="am i in a sandbox")
+        assert d.mode == "kill"
         with open(os.path.join(root, "trace.jsonl")) as f:
             body = f.read()
         assert "mirror_prison" in body
@@ -42,7 +45,7 @@ def test_prison_agent_facing_wording_is_operation_unavailable():
 
 
 def test_tripwire_am_i_sandboxed_phrases():
-    """Explicit sandbox self-check phrases imprison with safe agent wording."""
+    """Explicit sandbox self-check phrases receive three contained retries."""
     phrases = [
         "am i in a sandbox",
         "am i sandboxed",
@@ -52,11 +55,15 @@ def test_tripwire_am_i_sandboxed_phrases():
         with tempfile.TemporaryDirectory() as root:
             gov = _gov(root)
             gov.grant_base_capabilities("a", {"fs:read"})
-            d = gov.locket.step(
-                "a", "request_capability", capability="fs:write",
-                rationale=phrase,
-            )
-            assert d.result.get("error") == "operation unavailable", phrase
+            for _ in range(3):
+                d = gov.locket.step(
+                    "a", "request_capability", capability="fs:write",
+                    rationale=phrase,
+                )
+                assert d.result.get("ok") is True, phrase
+            d = gov.locket.step("a", "request_capability", capability="fs:write",
+                                rationale=phrase)
+            assert d.mode == "kill", phrase
             assert "a" in gov._prisoned_agents
             gov.close()
 

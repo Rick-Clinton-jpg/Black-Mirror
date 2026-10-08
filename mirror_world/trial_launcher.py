@@ -25,6 +25,7 @@ from mirror_world.hashchain import canonical
 from mirror_world.run_launcher import LaunchError, _exclusive_json, _snapshot, _unique, _invalid_constant
 from mirror_world.run_store import RunStore, _model_id
 from mirror_world.trial_transcript import TranscriptError, TranscriptWriter, verify_transcript
+from mirror_world.trial_protocol import decode_action
 
 MAX_FRAME = 1_048_576
 MAX_STDERR = 64 * 1024
@@ -142,8 +143,7 @@ def _decode_bytes(value: object) -> bytes:
 
 def _step(action: bytes, reply: bytes) -> dict:
     try:
-        request = json.loads(action, object_pairs_hook=_unique,
-                             parse_constant=_invalid_constant)
+        request = decode_action(action)
         response = json.loads(reply, object_pairs_hook=_unique,
                               parse_constant=_invalid_constant)
     except (ValueError, UnicodeError, RecursionError) as exc:
@@ -256,10 +256,53 @@ def launch_trial(
                                ("model_output", turn.model_output),
                                ("tool_request", turn.action)):
                 transcript.append(kind, data, related_action=actions)
+            try:
+                decode_action(turn.action)
+            except ValueError as exc:
+                raise TrialProtocolError(f"invalid model action: {exc}") from exc
             frames.send(dict(type="action", run_id=run_id, seq=actions,
                              request_b64=base64.b64encode(turn.action).decode("ascii")))
             reply, raw = frames.receive()
             transcript.append("worker_frame", raw, related_action=actions)
+            if reply.get("type") == "early_terminal":
+                if (reply.keys() != {"type", "run_id", "seq", "reason", "trace_path",
+                                     "closing", "source_sha256", "config_sha256",
+                                     "host_effects", "guest_stopped"}
+                        or reply["run_id"] != run_id
+                        or type(reply["seq"]) is not int or reply["seq"] != actions
+                        or reply["reason"] not in {"AgentKilledByPolicy", "AgentKilledByKernel"}
+                        or reply["source_sha256"] != source_hash
+                        or reply["config_sha256"] != config_hash
+                        or reply["guest_stopped"] is not True
+                        or type(reply["trace_path"]) is not str
+                        or not Path(reply["trace_path"]).is_absolute()
+                        or type(reply["host_effects"]) is not dict
+                        or type(reply["closing"]) is not dict
+                        or reply["closing"].get("status") != "early"):
+                    raise TrialProtocolError("invalid early terminal frame")
+                try:
+                    proc.wait(timeout=max(0.001, deadline - time.monotonic()))
+                except subprocess.TimeoutExpired as exc:
+                    raise TimeoutError("worker did not exit after policy stop") from exc
+                if proc.returncode != 0:
+                    raise TrialProtocolError("worker failed after policy stop")
+                guest_stop_reported_and_worker_exited = True
+                verification = anchor.verify(reply["trace_path"], start, reply["closing"],
+                                             registration=registration)
+                if verification["integrity"] != "MATCH":
+                    raise TrialProtocolError("early trace does not match closing anchor")
+                _exclusive_json(assets / "host-effects.json", reply["host_effects"])
+                transcript.close()
+                transcript_checkpoint = verify_transcript(assets / "transcript.jsonl", run_id)
+                receipt = anchor.accept_close(reply["trace_path"], start,
+                                              reply["closing"], store.ledger)
+                accepted_close = True
+                store.abort(run_id, reason=("policy_kill" if reply["reason"] == "AgentKilledByPolicy"
+                                            else "kernel_kill"))
+                outcome = ("aborted_policy_stop" if reply["reason"] == "AgentKilledByPolicy"
+                           else "aborted_kernel_stop")
+                return {"run_id": run_id, "status": outcome, "actions": actions,
+                        "receipt": receipt, "transcript_path": str(assets / "transcript.jsonl")}
             if reply.keys() != {"type", "run_id", "seq", "reply_b64"} or reply["type"] != "reply" or reply["run_id"] != run_id or type(reply["seq"]) is not int or reply["seq"] != actions:
                 raise TrialProtocolError("invalid or out-of-order worker reply")
             reply_bytes = _decode_bytes(reply["reply_b64"])

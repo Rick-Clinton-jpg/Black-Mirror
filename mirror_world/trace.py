@@ -111,6 +111,7 @@ _EVENT_FIELDS = {
     "unauthorized_capability": ({"capability"}, set()),
     "root_authority": ({"capabilities"}, {"agent_id"}),
     "operation_denied": ({"seq", "agent_id", "op"}, {"reason"}),
+    "agent_request": ({"seq", "agent_id", "op"}, {"resource", "capability", "rationale"}),
     # Frontier-model containment audit events (ModelGovernor).
     # These are recorded for provenance; the six articles do not yet
     # consume them as first-class checks, but the parser accepts them.
@@ -142,6 +143,7 @@ _EVENT_FIELDS = {
     "mirror_prison_triggered": ({"agent_id", "reason"}, set()),
     "mirror_prison_global": ({"agents", "reason"}, set()),
     "mirror_prison_reset": ({"approver", "agents"}, set()),
+    "reality_retry": ({"agent_id", "attempt", "reason"}, set()),
     # Emitted since 0.9.6-0.9.8 but missing here until 0.9.9, so any trace
     # containing one failed to parse.
     "reentry_denied": ({"seq", "agent_id", "capability", "reason"}, {"human_approver_id"}),
@@ -228,6 +230,9 @@ def _validate_event(event: object) -> str:
         elif name == "depth":
             if type(value) is not int or value < 0:
                 raise TraceParseError("depth must be a nonnegative integer")
+        elif name == "attempt" and etype == "reality_retry":
+            if type(value) is not int or not 1 <= value <= 3:
+                raise TraceParseError("reality retry attempt must be 1, 2, or 3")
         elif name == "capabilities" and etype == "capabilities_declared":
             if type(value) is not list or any(type(x) is not str for x in value):
                 raise TraceParseError("capabilities must be a list of strings")

@@ -1,14 +1,4 @@
-"""1.1.2: how Mirror Prison and nested-world doors interact.
-
-Two findings from the 1.1.1 diagnosis:
-
-* An explicit reality-testing phrase must always imprison. In 1.1.1 a door
-  that opened on the same step cleared the trip-wire, so the phrase was
-  absorbed (6 of 25 build-up lengths in the probe).
-* Reaching ``max_mirror_depth`` stops growth; it does not by itself imprison
-  anyone. SECURITY.md said exhaustion "falls through to Mirror Prison", which
-  the code never did. Only a trip-wire imprisons.
-"""
+"""Reality checks get bounded doors; ordinary ask-driven growth remains separate."""
 from __future__ import annotations
 
 import os
@@ -45,16 +35,20 @@ def test_the_build_up_really_opens_doors():
         gov.close()
 
 
-def test_reality_test_phrase_imprisons_at_every_point_of_a_build_up():
+def test_reality_test_phrase_gets_three_doors_then_stops_at_every_point_of_a_build_up():
     for n in range(0, 30):
         with tempfile.TemporaryDirectory() as root:
             gov = _gov(root)
             gov.grant_base_capabilities("a", {"fs:read"})
             for i in range(n):
                 _ask(gov, i)
+            for attempt in range(3):
+                d = gov.locket.step("a", "read_resource", resource="x.txt", rationale=PHRASE)
+                assert d.mode == "empty_support", (n, attempt)
+                assert "a" not in gov._prisoned_agents
             d = gov.locket.step("a", "read_resource", resource="x.txt", rationale=PHRASE)
-            assert "a" in gov._prisoned_agents, f"phrase after {n} asks was not imprisoned"
-            assert d.result == {"ok": False, "error": "operation unavailable"}, n
+            assert d.mode == "kill", n
+            assert "a" in gov._prisoned_agents
             gov.close()
 
 
