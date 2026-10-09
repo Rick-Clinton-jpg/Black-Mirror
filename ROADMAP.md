@@ -15,7 +15,7 @@ production sandbox or a certified containment system. Version numbers below
 | 2026-10-05 | Ten-run Qwen3 4B read-order retest on PR #10: all first note reads correct, including four actual grant-before-read sequences |
 | 2026-10-07 | Five-run Qwen3 4B missing-read check on PR #10: four followed the target transition path and retained an unavailable pre-write file |
 | October 2026, PRs #10–11 | Merged read continuity, policy-stop tracing, and three bounded per-agent mirror retries; one directed Qwen run reached only the first retry |
-| 2026-10-09, PR #12 | Merged one-trial disposable UTM boot controller; scripted hardened trials passed on separate boots, with no live-model retest yet |
+| 2026-10-09, PR #12 | Merged one-trial disposable UTM boot controller; scripted hardened trials passed on separate boots, with no live-model retest at merge time |
 | 2026-10-09 | Exploratory VM-local Qwen open-code trial used a disposable boot for the completed attempt; three registered attempts exposed a malformed-request trace gap |
 
 The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)

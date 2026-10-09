@@ -37,9 +37,10 @@ threat model and explicit limits.
 1. The agent runs inside a Linux process boundary: namespaces, dropped
    privileges, and a seccomp filter installed before any agent code executes.
    That is the hard boundary against raw system calls.
-2. Every request the agent sends goes through Locket, the host-side monitor.
-   `RealGovernor.run_agent()` routes every valid protocol request through
-   Locket before dispatch; `ModelGovernor` shares the same Locket by default.
+2. Valid protocol requests go through Locket, the host-side monitor.
+   `RealGovernor.run_agent()` routes them through Locket before dispatch;
+   malformed requests are rejected earlier. `ModelGovernor` shares the same
+   Locket by default.
 3. Locket judges each request. Unauthorized or suspicious requests get a
    reflected, success-shaped response instead of a real effect.
 4. **The session lock.** The agent's first reflected response puts its
