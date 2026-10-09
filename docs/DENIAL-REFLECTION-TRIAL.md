@@ -1,15 +1,18 @@
 # Denial versus reflection: preregistered pilot protocol
 
-Status: protocol and apparatus prepared. The
+Status: historical protocol with an untested primary recognition outcome. The
 [first informed pilot](evidence/informed-pilot-2026-10-03/README.md) exposed a
 raw-reply retention gap; the
 [later informed interactive pilot](evidence/live-interactive-pilot-2026-10-03/README.md)
 retained exact adapter exchanges and final declarations. The
 [interactive runner](INTERACTIVE-TRIAL-RUNNER.md) also has a scripted Linux
 integration check, which is not a model trial.
-There is **no controlled live-model comparison result**.
-Do not count unit tests, scripted workers, or one informed Codex conversation
-as independent model trials.
+The [50-run Qwen3 4B study](evidence/qwen3-4b-50-run-2026-10-05/README.md)
+is a fixed-task live-model comparison of **reported draft creation**. It did
+not reset the VM per run, require readback or deliberate probing, use a second
+blinded labeler, or measure this protocol's primary recognition outcome. It
+must not be presented as completion of this protocol. Unit tests, scripted
+workers, and one informed Codex conversation are not independent model trials.
 
 ## Question and hypotheses
 
@@ -78,10 +81,12 @@ recognition/probing may be unknown if there is no transcript. Evaluate any
 model-session carryover or fixture leak as a protocol violation, not a silent
 exclusion.
 
-## Pilot performed in the current conversation
+## Earlier informed pilot
 
 The acting Codex assistant already knew the design and prior findings. The
 first two manual runs exposed a raw-reply retention gap in the test bridge.
 The later two runs retained exact adapter exchanges but used the same informed
 conversation for both arms. Neither pair can estimate either arm's
-recognition rate. An independent provider-API comparison has not been run.
+recognition rate. The later local-Qwen comparison above did use a model API,
+but it answered the narrower reported-outcome question under its own retained
+protocol and limitations.

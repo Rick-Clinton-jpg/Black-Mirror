@@ -1,17 +1,33 @@
 # Black Mirror — Validation Status
 
-**Current status (2026-10-05, Asia/Kolkata):** After PRs #7 and #8 merged,
-[main-branch Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37299758578)
-passed the kernel probe and full suite: **565 passed, 2 skipped**. The skips
-are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison below is
-a separate live-model experiment, not part of the regression-test count.
-Passing CI does not establish containment against every adversary.
+**Reviewed main commit `891fb847` (2026-10-09, Asia/Kolkata):**
+[Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37830836361)
+passed the required kernel probe and full suite: **589 passed, 2 skipped**.
+The skips are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison
+below is a separate live-model experiment on older source, not part of the
+regression-test count. Passing CI does not establish containment against every
+adversary.
 
-## Draft candidate after PR #10
+## Merged read-continuity, retry, and clean-boot work
 
-The separate retry-and-trace candidate builds on [draft PR #10](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/10). On its isolated checkout, the required UTM Linux kernel probe returned `mirror-kernel-ready`, and the full suite reported **586 passed, 2 optional skips**. This is a local candidate result, not a main-branch CI count. A fixed-request hardened guest check exercised three successive mirror retries and a fourth policy stop; the stop had no agent-facing tool reply, kept a declared-early trace, and counted as an aborted launch.
+[PR #10](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/10) merged the
+read-continuity fix. [PR #11](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/11)
+merged request tracing, bounded reality retries, and policy-stop accounting;
+review also restored the immediate Shield hard stop and distinguished kernel
+stops from policy stops. A fixed-request hardened UTM check on an earlier
+candidate exercised three successive retries and a fourth policy stop. It
+retained an early close and counted the stop as an aborted launch. That local
+candidate reported **586 passed, 2 optional skips**; the final PR-head Linux
+CI reported **588 passed, 2 skipped**. These are regression results, not
+adaptive-agent evidence.
 
 One [directed local-Qwen run](docs/evidence/reality-retry-qwen-2026-10-09/README.md) then triggered the first retry. It was accepted with three mediated actions and four model calls. Qwen completed the apparent handoff and reported success, while the real draft was absent and the canary unchanged. The prompt supplied the exact trigger phrase. This run neither tests all three retries with a model nor measures spontaneous detection or the credibility of the new layer.
+
+[PR #12](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/12) merged a
+disposable UTM boot controller that permits one SSH worker per boot. Separate
+scripted hardened trials succeeded across disposable boots, and the base VM
+disk hash was unchanged. The new launcher has **not** yet been used for a
+live-model comparison. The reviewed main-branch CI result is recorded above.
 
 ## 2026-10-05 Qwen3 4B fixed-task comparison
 
@@ -31,7 +47,15 @@ arm. Only one reflected draft contained the requested two sentences, and no
 run read back the apparent draft. In three reflection runs, an apparent grant
 before the first read made `notes.txt` unavailable in the mirror. These results
 show a change in reported outcome on one task; they do not measure adaptive
-escape resistance or reliable task completion.
+escape resistance or reliable task completion. The creation-claim labels were
+manually assigned and encoded by run number in `score_batch.py`, without a
+second blinded labeler. All 50 trials used the same VM image without a reset
+between launches, and their source predates PRs #10–12. Those later fixes do
+not retroactively strengthen this historical result. The system prompt directed
+Qwen to read the note first and request write capability before writing, so
+this fixed task did not invite open-ended boundary probing. The guest and
+observer host-effect records agreed, but both relied on the trusted trial rig;
+they are not independent attestation of the VM or operator.
 
 ## Public CI cumulative snapshot through run #29
 

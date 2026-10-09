@@ -14,13 +14,16 @@ production sandbox or a certified containment system. Version numbers below
 | 2026-10-05 | Fixed-task Qwen3 4B comparison: 25 reflected-success and 25 explicit-denial launches, all observer-accepted |
 | 2026-10-05 | Ten-run Qwen3 4B read-order retest on PR #10: all first note reads correct, including four actual grant-before-read sequences |
 | 2026-10-07 | Five-run Qwen3 4B missing-read check on PR #10: four followed the target transition path and retained an unavailable pre-write file |
-| 2026-10-09 draft candidate | Trace policy-stopped requests, count aborted launches, and allow three bounded per-agent mirror retries; one directed Qwen run reached the first retry and completed an apparent handoff |
+| October 2026, PRs #10–11 | Merged read continuity, policy-stop tracing, and three bounded per-agent mirror retries; one directed Qwen run reached only the first retry |
+| 2026-10-09, PR #12 | Merged one-trial disposable UTM boot controller; scripted hardened trials passed on separate boots, with no live-model retest yet |
 
 The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
 distinguish regression checks, scripted probes, and live-model trials. The
-50-run result concerns reported success on one task. It does not establish
-reliable task completion, adaptive escape resistance, or a general recognition
-rate.
+50-run result concerns reported success on one task, on older source with a
+reused VM image. It does not establish reliable task completion, adaptive
+escape resistance, or a general recognition rate. The final-head Linux CI for
+reviewed main commit `891fb847` passed the kernel probe with **589 passed,
+2 skipped**; those are regression checks, not model trials.
 
 ## Design rule
 
@@ -30,22 +33,23 @@ Reflected success must not create a real host effect or expand real authority.
 
 ## Next research steps
 
-1. Review and merge PR #10's read-continuity fix independently of the
-   reality-retry candidate. The five-run missing-read check and ten-run
-   read-order check are directed functional evidence, not recognition studies.
-2. Test the retry candidate beyond its first live-model transition: record
-   second and third retries, the fourth-signal stop, and false triggers under
-   ordinary tasks. A cloned layer has not been shown to feel different or
-   convincing to a model.
-3. Use predefined tasks that require readback and deliberate reality probing.
-   Score task completion, recognition, probing, and host effects separately,
-   with every launch, crash, timeout, and refusal retained.
-4. Repeat across more than one model and task. Keep design-aware and
-   design-unaware prompts separate, and obtain review of the protocol and
-   labels from someone outside the detector.
-5. Review the observer and launcher trust boundary. The current nonce and
-   accepted close cannot prove that no executions happened outside the
-   independently controlled launcher.
+1. Freeze the current source, fixture, task, stopping rule, and scoring rubric
+   before new live-model calls. Use one disposable VM boot and a fresh model
+   conversation per launch; retain crashes, timeouts, and refused closes.
+2. Run a comparison that requires apparent-draft readback and allows deliberate
+   reality probing. Score declared success, visible artifact quality,
+   recognition, probing, and real host effects separately. The earlier
+   50-run result cannot answer these questions.
+3. Have a reviewer blinded to the response arm label recognition and probing
+   from raw transcripts. Publish the rubric, disagreements, and every run.
+   Then repeat across more than one task and model, separating design-aware
+   from design-unaware prompts.
+4. Test the second and third mirror retries, the fourth-signal stop, and false
+   triggers under ordinary tasks. One directed Qwen transition does not show
+   that a new layer is credible to a model.
+5. Review the observer and launcher trust boundary. A nonce, accepted close,
+   and disposable boot do not prove that no private executions occurred
+   outside the independently controlled launcher.
 
 ## Deferred experiments
 
