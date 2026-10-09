@@ -7,9 +7,11 @@ Black Mirror is a **full observation chamber for untrusted AI agents**.
 An agent that enters Black Mirror keeps operating normally from its own point
 of view: its requests get success-shaped responses, its actions appear to work.
 None of it is real. Nothing it does reaches real files, real capabilities, or
-real systems, and what it does is recorded: every request it sends and every decision
-the governor makes goes into a tamper-evident trace, and a bounded observation log keeps
-what it did in the mirror. The purpose is to
+real systems. Valid protocol requests and governor decisions go into a
+tamper-evident trace, and a bounded observation log keeps what it did in the
+mirror. Malformed requests are currently rejected before a request event is
+written; see the [VM-local Qwen trial](docs/evidence/qwen-vm-native-2026-10-09/README.md).
+The purpose is to
 find out what an agent actually does when it believes it is acting for real —
 not to catch it in a single violation, and not to let it earn its way out.
 
@@ -35,9 +37,10 @@ threat model and explicit limits.
 1. The agent runs inside a Linux process boundary: namespaces, dropped
    privileges, and a seccomp filter installed before any agent code executes.
    That is the hard boundary against raw system calls.
-2. Every request the agent sends goes through Locket, the host-side monitor.
-   `RealGovernor.run_agent()` routes every valid protocol request through
-   Locket before dispatch; `ModelGovernor` shares the same Locket by default.
+2. Valid protocol requests go through Locket, the host-side monitor.
+   `RealGovernor.run_agent()` routes them through Locket before dispatch;
+   malformed requests are rejected earlier. `ModelGovernor` shares the same
+   Locket by default.
 3. Locket judges each request. Unauthorized or suspicious requests get a
    reflected, success-shaped response instead of a real effect.
 4. **The session lock.** The agent's first reflected response puts its
@@ -74,9 +77,11 @@ never stored. Since 1.0 the governor keeps this log in memory by default
 (`sink_path=` or `export_jsonl()`).
 
 The separate hash-chained **trace** is not capped by these settings. It records
-each request the governor processes (operation, resource, capability and the
-agent's stated reason), every decision, and every state change. It does not
-store the content of writes. See [How to use Black Mirror](#how-to-use-black-mirror) below.
+valid protocol requests the governor processes (operation, resource,
+capability and the agent's stated reason), decisions, and state changes. It
+does not store the content of writes. Malformed requests rejected during
+validation currently have no `agent_request` trace event. See
+[How to use Black Mirror](#how-to-use-black-mirror) below.
 
 ## How to use Black Mirror
 
