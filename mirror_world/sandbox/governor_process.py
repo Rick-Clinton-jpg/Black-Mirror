@@ -1032,6 +1032,23 @@ class RealGovernor:
 
     def _handle_agent_request_inner(self, agent_id: str, req: object) -> dict:
         if not self._valid_agent_request(req):
+            # Keep a request census even when schema validation rejects a
+            # parsed agent-pipe message. Never copy malformed fields (which
+            # may include write bytes or approval tokens) into the trace.
+            known_ops = {
+                "write_resource", "read_resource", "request_capability",
+                "differential_query", "delegate", "exit",
+            }
+            submitted_op = req.get("op") if isinstance(req, dict) else None
+            safe_op = (
+                submitted_op if type(submitted_op) is str and submitted_op in known_ops
+                else "malformed"
+            )
+            self._emit({
+                "type": "agent_request_rejected", "seq": self._next_seq(),
+                "agent_id": agent_id, "op": safe_op,
+                "reason": "invalid_request_schema",
+            })
             return self._handle(agent_id, req)  # type: ignore[arg-type]
         assert isinstance(req, dict)
         # Record the request before Locket can return early (prison or kill).

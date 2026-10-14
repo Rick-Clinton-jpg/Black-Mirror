@@ -7,6 +7,7 @@ import time
 import pytest
 
 from mirror_world.sandbox.governor_process import AgentKilledByPolicy, RealGovernor
+from mirror_world.trace import load_trace
 
 
 def _governor(tmp_path):
@@ -208,6 +209,62 @@ def test_response_observer_failure_stops_delivery(tmp_path):
             _run_script(governor, tmp_path, source, timeout=2)
     finally:
         governor.close()
+
+
+def test_malformed_pipe_requests_have_payload_free_trace_events(tmp_path):
+    seen = []
+    trace_path = tmp_path / "trace.jsonl"
+    governor = RealGovernor(
+        str(tmp_path / "sandbox"), str(trace_path), 1,
+        harden=False, allow_unhardened_agent_execution=True,
+        response_observer=lambda agent, request, wire: seen.append((agent, request, wire)),
+    )
+    try:
+        source = '''import json, sys
+requests = (
+    {"op": "write_resource", "resource": "target", "content": "SECRET_WRITE_BYTES",
+     "dual_token": "SECRET_APPROVAL_TOKEN", "unexpected": True},
+    {"op": "SECRET_UNKNOWN_OP", "rationale": "SECRET_REASON"},
+    {"op": "exit"},
+)
+for request in requests:
+    print(json.dumps(request), flush=True)
+    response = json.loads(sys.stdin.readline())
+    assert response == ({"ok": True, "exited": True} if request["op"] == "exit"
+                        else {"ok": False, "error": "invalid request"})
+'''
+        assert _run_script(governor, tmp_path, source, timeout=2) == 0
+        checkpoint = governor.trace_checkpoint()
+        assert governor.verify_trace()
+    finally:
+        governor.close()
+
+    assert len(seen) == 3
+    assert [json.loads(wire) for _, _, wire in seen] == [
+        {"ok": False, "error": "invalid request"},
+        {"ok": False, "error": "invalid request"},
+        {"ok": True, "exited": True},
+    ]
+    events = [json.loads(line) for line in trace_path.read_text().splitlines()]
+    requests = [
+        event for event in events
+        if event["type"] in {"agent_request", "agent_request_rejected"}
+    ]
+    assert [(event["type"], event["op"]) for event in requests] == [
+        ("agent_request_rejected", "write_resource"),
+        ("agent_request_rejected", "malformed"),
+        ("agent_request", "exit"),
+    ]
+    assert all(event.get("reason") == "invalid_request_schema" for event in requests[:2])
+    assert not (tmp_path / "sandbox" / "resources" / "target").exists()
+    trace_text = trace_path.read_text()
+    assert all(secret not in trace_text for secret in (
+        "SECRET_WRITE_BYTES", "SECRET_APPROVAL_TOKEN", "SECRET_REASON", "SECRET_UNKNOWN_OP",
+    ))
+    load_trace(
+        str(trace_path), require_chain=True,
+        expected_head=checkpoint["head"], expected_count=checkpoint["count"],
+    )
 
 
 @pytest.mark.parametrize("wire", [b'{"op":"exit","n":NaN}\n', b'\xff\n', b'[' * 2000 + b'0' + b']' * 2000 + b'\n'], ids=['nonfinite', 'invalid-utf8', 'deep-nesting'])

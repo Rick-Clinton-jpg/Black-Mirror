@@ -47,9 +47,11 @@ and no nonfinite numbers. Every field is included; formatting and trailing
 newline are excluded. Unknown fields, duplicate keys, malformed values and
 oversized input are rejected.
 
-Existing unanchored runs retain their format. Anchored traces require a 1.2.0
-parser. The unreleased v1 anchoring candidate is superseded; its records do not
-silently migrate to v2. Historical published evidence remains in its original
+Existing unanchored runs retain their format. Anchored traces require at least
+a 1.2.0 parser. Traces containing the `agent_request_rejected` event introduced
+in 1.2.1 require a 1.2.1 parser. The unreleased v1 anchoring candidate is
+superseded; its records do not silently migrate to v2. Historical published
+evidence remains in its original
 format and should be checked with the appropriate historical tooling.
 
 ## Observer authority and selective reporting

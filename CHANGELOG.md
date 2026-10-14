@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 (unreleased)
+
+- Record parsed but schema-rejected agent-pipe requests as bounded,
+  payload-free `agent_request_rejected` events before returning the same
+  error reply. Preserve the known operation name when safe; never trace
+  malformed resource, rationale, write content or approval-token fields.
+- This additive trace event requires a 1.2.1 parser when it appears. The
+  observer anchor schema and containment authority are unchanged.
+
 ## 1.2.0 (unreleased)
 
 - Add optional observer-registered start/close trace anchoring, with a random

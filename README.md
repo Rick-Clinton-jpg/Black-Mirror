@@ -1,4 +1,4 @@
-# Black Mirror v1.2.0
+# Black Mirror v1.2.1
 
 [![Security regression tests](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml/badge.svg)](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/workflows/security-tests.yml)
 
@@ -79,8 +79,8 @@ never stored. Since 1.0 the governor keeps this log in memory by default
 The separate hash-chained **trace** is not capped by these settings. It records
 valid protocol requests the governor processes (operation, resource,
 capability and the agent's stated reason), decisions, and state changes. It
-does not store the content of writes. Malformed requests rejected during
-validation currently have no `agent_request` trace event. See
+does not store the content of writes. Parsed agent-pipe requests rejected by
+schema validation have a payload-free `agent_request_rejected` event. See
 [How to use Black Mirror](#how-to-use-black-mirror) below.
 
 ## How to use Black Mirror
