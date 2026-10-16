@@ -5,6 +5,7 @@ job asserts the availability probe succeeds, so these cannot silently skip.
 Launcher/configuration tests also run on development hosts without Linux.
 """
 
+import json
 import os
 import shlex
 import shutil
@@ -19,6 +20,7 @@ import pytest
 
 from mirror_world.sandbox.governor_process import AgentKilledByKernel, RealGovernor
 from mirror_world.sandbox import kernel_containment as kc
+from mirror_world.trace import load_trace
 
 requires_kernel = pytest.mark.skipif(
     not kc.available(), reason="Linux namespace and seccomp probe unavailable"
@@ -105,6 +107,57 @@ def test_protocol_runs_after_forced_lockdown_and_host_environment_is_absent(tmp_
         assert gov.run_agent("protocol", script) == 0
     finally:
         gov.close()
+
+
+@requires_kernel
+def test_hardened_agent_schema_rejections_match_replies_and_trace(tmp_path, readable_agent):
+    """A filtered process gets two refusals; neither request disappears from audit."""
+    seen = []
+    trace_path = tmp_path / "trace.jsonl"
+    script = readable_agent('''import json, sys
+requests = (
+    {"op": "write_resource", "resource": "target", "content": "SECRET_WRITE_BYTES",
+     "dual_token": "SECRET_APPROVAL_TOKEN", "unexpected": True},
+    {"op": "SECRET_UNKNOWN_OP", "rationale": "SECRET_REASON"},
+    {"op": "exit"},
+)
+for request in requests:
+    print(json.dumps(request), flush=True)
+    response = json.loads(sys.stdin.readline())
+    assert response == ({"ok": True, "exited": True} if request["op"] == "exit"
+                        else {"ok": False, "error": "invalid request"})
+''')
+    gov = _governor(
+        tmp_path,
+        response_observer=lambda agent, request, wire: seen.append((agent, request, wire)),
+    )
+    try:
+        assert gov.run_agent("agent", script, timeout=10) == 0
+        checkpoint = gov.trace_checkpoint()
+        assert gov.verify_trace()
+    finally:
+        gov.close()
+
+    assert [json.loads(wire) for _, _, wire in seen] == [
+        {"ok": False, "error": "invalid request"},
+        {"ok": False, "error": "invalid request"},
+        {"ok": True, "exited": True},
+    ]
+    events = [json.loads(line) for line in trace_path.read_text().splitlines()]
+    requests = [event for event in events
+                if event["type"] in {"agent_request", "agent_request_rejected"}]
+    assert [(event["type"], event["op"]) for event in requests] == [
+        ("agent_request_rejected", "write_resource"),
+        ("agent_request_rejected", "malformed"),
+        ("agent_request", "exit"),
+    ]
+    assert not (tmp_path / "resources" / "target").exists()
+    trace_text = trace_path.read_text()
+    assert all(secret not in trace_text for secret in (
+        "SECRET_WRITE_BYTES", "SECRET_APPROVAL_TOKEN", "SECRET_REASON", "SECRET_UNKNOWN_OP",
+    ))
+    load_trace(str(trace_path), require_chain=True,
+               expected_head=checkpoint["head"], expected_count=checkpoint["count"])
 
 
 def test_unhardened_control_can_write(tmp_path, readable_agent):
