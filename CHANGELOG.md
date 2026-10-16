@@ -2,6 +2,9 @@
 
 ## 1.2.1 (unreleased)
 
+- Sync each governor trace event and the new trace filename to storage before
+  continuing. A failed append or sync poisons the writer: later appends and
+  checkpoints fail rather than presenting a stale head as complete.
 - Record parsed but schema-rejected agent-pipe requests as bounded,
   payload-free `agent_request_rejected` events before returning the same
   error reply. Preserve the known operation name when safe; never trace

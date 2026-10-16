@@ -96,11 +96,14 @@ that is only partly chained is rejected. A chain alone cannot show that events
 were cut off the end or that the whole file was rewritten and re-chained: save
 `RealGovernor.trace_checkpoint()` off the host and verify with `expected_head`
 (`--expected-head` on the CLI). `verify_trace()` checks the file against the
-running governor's in-memory checkpoint. Legacy unchained traces are still
-read and reported as UNCHAINED unless `require_chain=True`. The chain proves
-the file was not changed after it was written, not that the recorder was
-honest: protect the recorder; external durable logging remains a deployment
-responsibility. Optional observer-registered start/close anchoring is documented in
+running governor's in-memory checkpoint. Governor trace events and the newly
+created trace filename are synced to storage; a sync failure halts further
+appends and makes the in-memory checkpoint unavailable. This reduces the
+window for lost local trace events but does not attest to an honest recorder,
+reliable storage hardware or a complete run. Legacy unchained traces are still
+read and reported as UNCHAINED unless `require_chain=True`. Protect the
+recorder; independent retention remains a deployment responsibility. Optional
+observer-registered start/close anchoring is documented in
 `docs/ANCHORING.md`. It requires independent retention before execution and
 binds the registered run into the first trace event. A missing close remains
 incomplete; an unanchored tail is not certified by a retained prefix. Observer

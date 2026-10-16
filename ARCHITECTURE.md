@@ -1,6 +1,6 @@
 # Black Mirror — Architecture
 
-This diagram describes the 0.9.10 request path. It distinguishes the OS
+This diagram describes the current request path. It distinguishes the OS
 containment around untrusted agent code from the trusted host-side mediation
 and offline trace checks.
 
@@ -21,10 +21,10 @@ flowchart TD
     Mirror[Reflected response —<br/>no real effect]
     Auth[Authorization and dual approval]
     Effects[Explicitly permitted resource effect]
-    Log[(Optional Black Mirror<br/>observation log)]
+    Log[(Default in-memory<br/>observation log)]
     Trace[Trusted trace · hash-chained]
     Checks[Six offline invariant checks]
-    Report[PASS · FAIL · INCOMPLETE]
+    Report[PASS · FAIL · PARTIAL · EMPTY]
 
     Seccomp --> Pipe --> Wire --> Locket --> Monitor --> Dispatch --> SessionLock
     SessionLock -- "yes" --> Mirror
@@ -55,12 +55,17 @@ flowchart TD
   governor's reflection does (0.9.9, following Moss's rule that the detection
   layer only recommends). Refusals to unlocked agents use the governor's
   ordinary wording.
-- The trace and the optional observation-log file are hash-chained; save the
-  governor's `trace_checkpoint()` off the host to detect truncation. The
+- The trace and the optional observation-log file are hash-chained. The
+  governor syncs each trace event and its newly created filename to storage;
+  a sync failure stops further trace appends and prevents a checkpoint from
+  being issued. Save a successful `trace_checkpoint()` off the host to detect
+  truncation. The
   control-plane calls can require signed approvals from root-certified
   approver keys (0.9.9, adapted from Moss).
-- A sealed session still reads the files it already saw on the real path as
-  it last saw them (0.9.10). Nothing it has not seen enters the mirror.
+- At seal, the governor copies eligible, explicitly read-granted files into
+  that agent's bounded mirror snapshot, including files not previously read.
+  The snapshot is taken once and never refreshed. Files without a read grant
+  stay out of the mirror.
 - Locket is host-side policy and telemetry. It cannot stop raw syscalls by
   itself; seccomp and namespaces provide that boundary. Unhardened agent source
   execution requires an explicit trusted test/demo opt-in.
@@ -73,8 +78,9 @@ flowchart TD
   trusted reviewer or host process, one capability at a time: anything
   outside the re-entered capabilities is reflected and locks the session
   again. Locked agents still pass through Locket's tripwire and monitoring.
-- The Black Mirror observation log is optional. It only records what agents
-  do in the mirror; it does not lock or release anything.
+- The Black Mirror observation log is enabled in memory by default; its file
+  sink is optional. It records what agents do in the mirror and cannot lock or
+  release anything.
 - Mirror Shield is an optional reporter package. Its absence does not disable
   Locket or kernel enforcement. Reporting a verdict does not itself enforce an
   additional host policy.

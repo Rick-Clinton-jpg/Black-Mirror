@@ -112,20 +112,31 @@ class HashChainWriter:
     def __init__(self, stream, *, fsync: bool = False) -> None:
         self._stream = stream
         self._fsync = fsync
+        self._failed = False
         self.head = GENESIS_HASH
         self.count = 0
 
     def append(self, record: Mapping[str, object]) -> dict:
+        if self._failed:
+            raise ChainError("chain writer failed; cannot append or checkpoint")
         sealed = seal(record, self.head)
-        self._stream.write(json.dumps(sealed) + "\n")
-        self._stream.flush()
-        if self._fsync:
-            import os
+        try:
+            self._stream.write(json.dumps(sealed) + "\n")
+            self._stream.flush()
+            if self._fsync:
+                import os
 
-            os.fsync(self._stream.fileno())
+                os.fsync(self._stream.fileno())
+        except BaseException:
+            # Bytes may have reached the stream even if flush/fsync failed.
+            # Continuing from the old head would silently fork the chain.
+            self._failed = True
+            raise
         self.head = sealed["record_hash"]
         self.count += 1
         return sealed
 
     def checkpoint(self) -> dict:
+        if self._failed:
+            raise ChainError("chain writer failed; checkpoint is unavailable")
         return {"head": self.head, "count": self.count}

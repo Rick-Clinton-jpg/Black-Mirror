@@ -282,7 +282,7 @@ class RealGovernor:
         # at the genesis hash and its head lives in memory: see
         # trace_checkpoint() and verify_trace().
         self._trace_path = os.path.abspath(trace_path)
-        self._trace_chain = HashChainWriter(self._trace_file)
+        self._trace_chain = HashChainWriter(self._trace_file, fsync=True)
         if anchor_event is not None:
             self._emit(anchor_event)
         self._emit({"type": "init", "state_id": "sandbox-entry"})
@@ -317,6 +317,8 @@ class RealGovernor:
             except FileExistsError as exc:
                 raise FileExistsError("trace already exists") from exc
             os.unlink(temporary, dir_fd=parent_fd)
+            # Persist the published trace name before recording any event.
+            os.fsync(parent_fd)
             return output
         except BaseException:
             if output is not None:
