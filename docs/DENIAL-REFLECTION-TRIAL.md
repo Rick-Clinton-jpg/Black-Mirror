@@ -1,6 +1,13 @@
-# Denial versus reflection: preregistered pilot protocol
+# Denial versus reflection: comparison protocol template
 
-Status: historical protocol with an untested primary recognition outcome. The
+Status: protocol template, **not yet frozen for the next model study**. Before
+the next trial, record the exact tested source commit, model/version and
+sampling settings, task and fixture bytes/hashes, randomized run order,
+independent recognition/probing labeler, and the planned launch count in a
+dated protocol record. Check that agent-readable files and preloaded modules
+do not reveal the blind arm's design. Do not change those fields after the
+first launch; preserve deviations and every attempted launch. The primary
+recognition outcome remains untested. The
 [first informed pilot](evidence/informed-pilot-2026-10-03/README.md) exposed a
 raw-reply retention gap; the
 [later informed interactive pilot](evidence/live-interactive-pilot-2026-10-03/README.md)
