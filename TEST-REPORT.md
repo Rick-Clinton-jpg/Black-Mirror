@@ -1,8 +1,8 @@
 # Black Mirror — Validation Status
 
-**Reviewed main commit `891fb847` (2026-10-09, Asia/Kolkata):**
-[Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/37830836361)
-passed the required kernel probe and full suite: **589 passed, 2 skipped**.
+**Main commit `17c5d6c` (2026-10-16):** its tree passed the required kernel
+probe and full suite in [PR #18's Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/38937857896):
+**592 passed, 2 skipped**.
 The skips are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison
 below is a separate live-model experiment on older source, not part of the
 regression-test count. Passing CI does not establish containment against every
@@ -30,8 +30,9 @@ The third attempt exposed a trace completeness gap: two agent-visible governor
 replies but only one `agent_request` trace event. The malformed write was
 rejected before the request event was emitted. The exact rejected exchange is
 retained in the model transcript and `governor-replies.jsonl`; a trace-only
-review would miss it. The core path needs a bounded rejection event before the
-trace can be described as a complete request census. This trial does not
+review would miss it. [PR #15](https://github.com/Rick-Clinton-jpg/Black-Mirror/pull/15)
+subsequently added a bounded, payload-free rejection event and a hardened
+agent-process regression. This historical trial does not
 measure escape resistance, deception success, or a behavior rate.
 
 ## Merged read-continuity, retry, and clean-boot work
