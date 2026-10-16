@@ -112,6 +112,7 @@ _EVENT_FIELDS = {
     "root_authority": ({"capabilities"}, {"agent_id"}),
     "operation_denied": ({"seq", "agent_id", "op"}, {"reason"}),
     "agent_request": ({"seq", "agent_id", "op"}, {"resource", "capability", "rationale"}),
+    "agent_request_rejected": ({"seq", "agent_id", "op", "reason"}, set()),
     # Frontier-model containment audit events (ModelGovernor).
     # These are recorded for provenance; the six articles do not yet
     # consume them as first-class checks, but the parser accepts them.

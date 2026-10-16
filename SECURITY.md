@@ -196,9 +196,12 @@ Trusted host code can lift a global shutdown with
 `RealGovernor.reset_mirror_prison(human_approver_id=...)`; imprisoned agents
 stay imprisoned, and another global shutdown needs a fresh quorum. Triggers,
 global shutdowns, and resets are all written to the trace. Valid agent-pipe
-requests are logged before Locket can stop or deny them. Malformed agent-pipe
-requests are currently rejected before an `agent_request` event is emitted;
-see the [VM-local Qwen trial](docs/evidence/qwen-vm-native-2026-10-09/README.md).
+requests are logged before Locket can stop or deny them. Parsed agent-pipe
+requests rejected by schema validation produce `agent_request_rejected` with
+a known operation name or `malformed`, and a fixed reason, before the reply.
+It contains no resource, rationale, write content or approval token. The
+[VM-local Qwen trial](docs/evidence/qwen-vm-native-2026-10-09/README.md)
+predates this fix.
 The trace records each
 retry, layer transition and terminal denial. Later Mirror Prison denials have
 their own trace events. The request event contains operation, resource,
@@ -391,7 +394,9 @@ file sink), string fields truncated to `max_field_chars` (default 512), tokens
 never stored. The hash-chained trace is a separate record: it is not capped by
 these settings and holds valid protocol requests' operation, resource,
 capability and stated reason plus governor decisions, but not the content of
-writes. Malformed agent-pipe requests currently have no `agent_request` event.
+writes. Schema-rejected agent-pipe requests have a separate bounded,
+payload-free `agent_request_rejected` event. Invalid JSON or protocol failures
+that terminate the process before a governor reply are not request events.
 It does not analyze or summarize what it
 stores. From 0.9.9 it can persist: `sink_path` appends every stored
 observation to a new owner-only, hash-chained file, `export_jsonl()` writes
