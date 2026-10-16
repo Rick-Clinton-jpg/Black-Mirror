@@ -18,18 +18,19 @@ production sandbox or a certified containment system. Version numbers below
 | 2026-10-09, PR #12 | Merged one-trial disposable UTM boot controller; scripted hardened trials passed on separate boots, with no live-model retest at merge time |
 | 2026-10-09 | Exploratory VM-local Qwen open-code trial used a disposable boot for the completed attempt; three registered attempts exposed a malformed-request trace gap |
 | 1.2.1 candidate, PR #15 | Parsed but schema-rejected agent-pipe requests receive bounded, payload-free trace events; hardened agent-process regression confirms the unchanged reply |
-| 1.2.1 candidate, PR #16 | Governor trace events and the new trace filename are synced; failed persistence halts appends and checkpoints |
+| 1.2.1 candidate, PRs #16 and #18 | The new trace filename is synced, and a failed append or flush halts later appends and checkpoints; per-event sync was removed after a Linux timing regression |
 
 The [validation report](TEST-REPORT.md) and [50-run evidence](docs/evidence/qwen3-4b-50-run-2026-10-05/README.md)
 distinguish regression checks, scripted probes, and live-model trials. The
 50-run result concerns reported success on one task, on older source with a
 reused VM image. It does not establish reliable task completion, adaptive
-escape resistance, or a general recognition rate. Main commit `6c68550` has
-the tree tested by [PR #16's Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/38936899558):
+escape resistance, or a general recognition rate. Main commit `17c5d6c` has
+the tree tested by [PR #18's Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/38937857896):
 the kernel probe passed, with **592 passed, 2 skipped**; those are regression checks, not
-model trials. Per-event trace sync increased the full-suite runtime from 28.50
-seconds on PR #15 to 77.65 seconds on PR #16; a controlled performance
-comparison remains open.
+model trials. The per-event sync candidate took 77.65 seconds and exposed a
+timing regression in the next CI run. With that sync removed, PR #18's full
+suite took 23.65 seconds. Recent event bytes are still vulnerable to sudden
+host crashes; crash durability needs a design that preserves response timing.
 
 ## Design rule
 

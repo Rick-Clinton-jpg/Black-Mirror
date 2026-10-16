@@ -1,7 +1,7 @@
 # Black Mirror — Validation Status
 
-**Main commit `6c68550` (2026-10-16):** its tree passed the required kernel
-probe and full suite in [PR #16's Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/38936899558):
+**Main commit `17c5d6c` (2026-10-16):** its tree passed the required kernel
+probe and full suite in [PR #18's Linux CI](https://github.com/Rick-Clinton-jpg/Black-Mirror/actions/runs/38937857896):
 **592 passed, 2 skipped**.
 The skips are optional `mirror_shield` checks. The 50-run Qwen3 4B comparison
 below is a separate live-model experiment on older source, not part of the
