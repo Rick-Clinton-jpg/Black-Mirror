@@ -1,7 +1,6 @@
 """Adversarial protocol inputs must fail finitely without host side effects."""
 
 import json
-import os
 import subprocess
 import time
 
@@ -213,28 +212,28 @@ def test_response_observer_failure_stops_delivery(tmp_path):
         governor.close()
 
 
-def test_trace_sync_failure_stops_agent_before_reply(tmp_path, monkeypatch):
+def test_trace_flush_failure_stops_agent_before_reply(tmp_path):
     seen = []
     governor = RealGovernor(
         str(tmp_path / "sandbox"), str(tmp_path / "trace.jsonl"), 1,
         harden=False, allow_unhardened_agent_execution=True,
         response_observer=lambda agent, request, wire: seen.append(wire),
     )
-    original_fsync = os.fsync
-    trace_fd = governor._trace_file.fileno()
+    class FailingStream:
+        def write(self, value):
+            return governor._trace_file.write(value)
 
-    def fail_trace_sync(fd):
-        if fd == trace_fd:
-            raise OSError("trace sync failed")
-        return original_fsync(fd)
+        def flush(self):
+            governor._trace_file.flush()
+            raise OSError("trace flush failed")
 
-    monkeypatch.setattr(os, "fsync", fail_trace_sync)
+    governor._trace_chain._stream = FailingStream()
     try:
         source = (
             "from mirror_world.sandbox.agent_runtime import request\n"
             "request('read_resource', resource='missing')\n"
         )
-        with pytest.raises(OSError, match="trace sync failed"):
+        with pytest.raises(OSError, match="trace flush failed"):
             _run_script(governor, tmp_path, source, timeout=2)
         assert seen == []
         with pytest.raises(ChainError, match="checkpoint is unavailable"):

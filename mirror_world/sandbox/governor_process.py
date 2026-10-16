@@ -282,7 +282,7 @@ class RealGovernor:
         # at the genesis hash and its head lives in memory: see
         # trace_checkpoint() and verify_trace().
         self._trace_path = os.path.abspath(trace_path)
-        self._trace_chain = HashChainWriter(self._trace_file, fsync=True)
+        self._trace_chain = HashChainWriter(self._trace_file)
         if anchor_event is not None:
             self._emit(anchor_event)
         self._emit({"type": "init", "state_id": "sandbox-entry"})

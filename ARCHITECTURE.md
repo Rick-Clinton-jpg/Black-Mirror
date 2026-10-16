@@ -56,9 +56,10 @@ flowchart TD
   layer only recommends). Refusals to unlocked agents use the governor's
   ordinary wording.
 - The trace and the optional observation-log file are hash-chained. The
-  governor syncs each trace event and its newly created filename to storage;
-  a sync failure stops further trace appends and prevents a checkpoint from
-  being issued. Save a successful `trace_checkpoint()` off the host to detect
+  governor flushes each event and syncs its newly created filename to storage.
+  A write or flush failure stops further trace appends and prevents a checkpoint
+  from being issued. Flushing does not make event bytes crash-durable; save a
+  successful `trace_checkpoint()` off the host to detect
   truncation. The
   control-plane calls can require signed approvals from root-certified
   approver keys (0.9.9, adapted from Moss).

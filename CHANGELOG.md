@@ -2,9 +2,10 @@
 
 ## 1.2.1 (unreleased)
 
-- Sync each governor trace event and the new trace filename to storage before
-  continuing. A failed append or sync poisons the writer: later appends and
-  checkpoints fail rather than presenting a stale head as complete.
+- Sync the new governor trace filename to storage. Keep per-event flushing,
+  not per-event fsync: per-event sync caused a measurable response-timing
+  difference on Linux CI. A failed append or flush poisons the writer, so
+  later appends and checkpoints fail rather than presenting a stale head.
 - Record parsed but schema-rejected agent-pipe requests as bounded,
   payload-free `agent_request_rejected` events before returning the same
   error reply. Preserve the known operation name when safe; never trace
